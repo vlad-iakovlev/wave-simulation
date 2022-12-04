@@ -1,36 +1,41 @@
-import { FC, useCallback, useEffect, useMemo, useRef } from 'react'
+import { FC, useCallback, useEffect, useRef } from 'react'
 import { FieldImage } from '../classes/FieldImage'
-
-const WIDTH = 1200
-const HEIGHT = 800
 
 export const Demo1: FC = () => {
   const canvas = useRef<HTMLCanvasElement>(null)
-  const fieldImage = useMemo(() => new FieldImage(WIDTH, HEIGHT), [])
+  const fieldImage = useRef<FieldImage>()
 
-  const run = useCallback(() => {
-    if (canvas.current) {
-      fieldImage.draw(canvas.current, 'height')
-      fieldImage.iterate()
-      window.requestAnimationFrame(run)
+  const run = useCallback((currentFieldImage: FieldImage) => {
+    if (fieldImage.current === currentFieldImage && canvas.current) {
+      currentFieldImage.draw(canvas.current, 'height')
+      currentFieldImage.iterate()
+      window.requestAnimationFrame(() => run(currentFieldImage))
     }
-  }, [fieldImage])
+  }, [])
 
-  useEffect(() => {
-    fieldImage.setMass(
-      (x, y) => x === 0 || x === WIDTH - 1 || y === 0 || y === HEIGHT - 1,
-      Infinity
-    )
+  const init = useCallback(() => {
+    const { width, height } = document.documentElement.getBoundingClientRect()
 
-    fieldImage.setHeight(
+    fieldImage.current = new FieldImage(width, height)
+
+    fieldImage.current.setHeight(
       (x, y) =>
-        Math.sqrt((x - (WIDTH - 1) / 2) ** 2 + (y - (HEIGHT - 1) / 2) ** 2) <
-        100,
+        Math.sqrt((x - (width - 1) / 2) ** 2 + (y - (height - 1) / 2) ** 2) <
+        Math.min(width, height) / 3,
       1
     )
 
-    run()
-  }, [fieldImage, run])
+    run(fieldImage.current)
+  }, [run])
+
+  useEffect(() => {
+    init()
+    window.addEventListener('resize', init)
+
+    return () => {
+      window.removeEventListener('resize', init)
+    }
+  }, [init])
 
   return <canvas ref={canvas} />
 }
