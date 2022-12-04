@@ -5,7 +5,7 @@ networks:
     name: vlad-yakovlev
 
 services:
-  wave-simulaion:
+  wave-simulation:
     build: .
     networks:
       - vlad-yakovlev

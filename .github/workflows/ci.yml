@@ -30,7 +30,7 @@ jobs:
 
   deploy:
     needs: checks
-    if: github.repository == 'vlad-yakovlev/wave-simulaion' && github.ref == 'refs/heads/main'
+    if: github.repository == 'vlad-yakovlev/wave-simulation' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Digital Ocean droplet via SSH action
@@ -41,6 +41,6 @@ jobs:
           key: ${{ secrets.KEY }}
           script_stop: true
           script: |
-            cd Projects/wave-simulaion
+            cd Projects/wave-simulation
             git pull
             docker compose up -d --build
