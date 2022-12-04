@@ -1,9 +1,8 @@
 import { useCallback, useRef } from 'react'
-import { FastFieldImage } from '../classes/FastFieldImage'
 import { FieldImage } from '../classes/FieldImage'
 
 interface UseWaveGeneratorProps {
-  fieldImage: FieldImage | FastFieldImage
+  fieldImage: FieldImage
   xRange: [number, number]
   yRange: [number, number]
   framesLimit?: number
