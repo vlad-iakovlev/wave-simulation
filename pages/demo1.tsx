@@ -1,15 +1,15 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { Index } from '../components/Index'
+import { Demo1 } from '../components/Demo1'
 
 const Home: NextPage = () => (
   <>
     <Head>
-      <title>Wave simulation</title>
+      <title>Wave simulation – Demo 1</title>
     </Head>
 
     <div className="flex items-center justify-center min-h-full">
-      <Index />
+      <Demo1 />
     </div>
   </>
 )
