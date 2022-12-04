@@ -3,15 +3,15 @@ import { Field } from '../classes/Field'
 
 interface UseWaveGeneratorProps {
   fields: Field[]
-  iRange: [number, number]
-  jRange: [number, number]
+  xRange: [number, number]
+  yRange: [number, number]
   framesLimit?: number
 }
 
 export const useWaveGenerator = ({
   fields,
-  iRange,
-  jRange,
+  xRange,
+  yRange,
   framesLimit = Infinity,
 }: UseWaveGeneratorProps) => {
   const frame = useRef(0)
@@ -24,13 +24,13 @@ export const useWaveGenerator = ({
     const heightValue = Math.sin(frame.current * 0.8) * 12
 
     fields.forEach((field) => {
-      for (let i = iRange[0]; i <= iRange[1]; i++) {
-        for (let j = jRange[0]; j <= jRange[1]; j++) {
-          field.pixels[i][j].height = heightValue
+      for (let x = xRange[0]; x <= xRange[1]; x++) {
+        for (let y = yRange[0]; y <= yRange[1]; y++) {
+          field.pixels[x][y].height = heightValue
         }
       }
     })
 
     frame.current++
-  }, [fields, framesLimit, iRange, jRange])
+  }, [fields, framesLimit, xRange, yRange])
 }

@@ -3,59 +3,55 @@ import { Pixel } from './Pixel'
 export class Field {
   pixels: Pixel[][] = []
 
-  constructor(public size: [number, number], massShift = 0) {
-    for (let i = 0; i < size[0]; i++) {
-      this.pixels[i] = []
-      for (let j = 0; j < size[1]; j++) {
-        this.pixels[i][j] = new Pixel()
-        this.pixels[i][j].massShift = massShift
+  constructor(public width: number, public height: number, massShift = 0) {
+    for (let x = 0; x < width; x++) {
+      this.pixels[x] = []
+      for (let y = 0; y < height; y++) {
+        this.pixels[x][y] = new Pixel()
+        this.pixels[x][y].massShift = massShift
       }
     }
   }
 
-  forEach(callback: (pixel: Pixel, i: number, j: number) => void) {
-    for (let i = 0; i < this.size[0]; i++) {
-      for (let j = 0; j < this.size[1]; j++) {
-        callback(this.pixels[i][j], i, j)
+  forEach(callback: (pixel: Pixel, x: number, y: number) => void) {
+    for (let x = 0; x < this.width; x++) {
+      for (let y = 0; y < this.height; y++) {
+        callback(this.pixels[x][y], x, y)
       }
     }
   }
 
   iterate() {
-    for (let i = 0; i < this.size[0]; i++) {
-      for (let j = 0; j < this.size[1]; j++) {
-        this.pixels[i][j].iterateHeight()
-        this.pixels[i][j].iterateAccumulated()
+    this.forEach((pixel) => {
+      pixel.iterateHeight()
+      pixel.iterateAccumulated()
+    })
+
+    this.forEach((pixel, x, y) => {
+      let force = 0
+      let count = 0
+
+      if (x > 0) {
+        force += this.pixels[x - 1][y].height
+        count += 1
       }
-    }
 
-    for (let i = 0; i < this.size[0]; i++) {
-      for (let j = 0; j < this.size[1]; j++) {
-        let force = 0
-        let count = 0
-
-        if (i > 0) {
-          force += this.pixels[i - 1][j].height
-          count += 1
-        }
-
-        if (i < this.size[0] - 1) {
-          force += this.pixels[i + 1][j].height
-          count += 1
-        }
-
-        if (j > 0) {
-          force += this.pixels[i][j - 1].height
-          count += 1
-        }
-
-        if (j < this.size[1] - 1) {
-          force += this.pixels[i][j + 1].height
-          count += 1
-        }
-
-        this.pixels[i][j].iterateVelocity(force / count)
+      if (x < this.width - 1) {
+        force += this.pixels[x + 1][y].height
+        count += 1
       }
-    }
+
+      if (y > 0) {
+        force += this.pixels[x][y - 1].height
+        count += 1
+      }
+
+      if (y < this.height - 1) {
+        force += this.pixels[x][y + 1].height
+        count += 1
+      }
+
+      pixel.iterateVelocity(force / count)
+    })
   }
 }

@@ -4,11 +4,11 @@ import { PixelValueSource } from './Pixel'
 export class FieldImage {
   fields: [Field, Field, Field]
 
-  constructor(public size: [number, number]) {
+  constructor(public width: number, public height: number) {
     this.fields = [
-      new Field(size, 0.02),
-      new Field(size),
-      new Field(size, -0.04),
+      new Field(width, height, 0.02),
+      new Field(width, height),
+      new Field(width, height, -0.04),
     ]
   }
 
@@ -21,8 +21,8 @@ export class FieldImage {
     massMultiplier: number
   ) {
     this.fields.forEach((field) => {
-      field.forEach((pixel, i, j) => {
-        if (condition(i, j)) {
+      field.forEach((pixel, x, y) => {
+        if (condition(x, y)) {
           pixel.mass *= massMultiplier
         }
       })
@@ -30,14 +30,14 @@ export class FieldImage {
   }
 
   getImageData(source: PixelValueSource) {
-    const image = new ImageData(this.size[0], this.size[1])
+    const image = new ImageData(this.width, this.height)
 
-    for (let i = 0; i < this.size[0]; i++) {
-      for (let j = 0; j < this.size[1]; j++) {
-        const index = (i + j * this.size[0]) * 4
-        for (let k = 0; k < 3; k++) {
-          image.data[index + k] =
-            this.fields[k].pixels[i][j].getValue(source) * 255
+    for (let x = 0; x < this.width; x++) {
+      for (let y = 0; y < this.height; y++) {
+        const index = (x + y * this.width) * 4
+        for (let i = 0; i < 3; i++) {
+          image.data[index + i] =
+            this.fields[i].pixels[x][y].getValue(source) * 255
         }
         image.data[index + 3] = 255
       }
@@ -47,11 +47,11 @@ export class FieldImage {
   }
 
   draw(canvas: HTMLCanvasElement, source: PixelValueSource) {
-    canvas.width = this.size[0]
-    canvas.height = this.size[1]
+    canvas.width = this.width
+    canvas.height = this.height
 
     const ctx = canvas.getContext('2d')
-    ctx?.clearRect(0, 0, this.size[0], this.size[1])
+    ctx?.clearRect(0, 0, this.width, this.height)
     ctx?.putImageData(this.getImageData(source), 0, 0)
   }
 }
