@@ -1,4 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useRef } from 'react'
+import { FastFieldImage } from '../classes/FastFieldImage'
 import { FieldImage } from '../classes/FieldImage'
 import { useWaveGenerator } from '../hooks/useWaveGenerator'
 
@@ -10,7 +11,7 @@ export const WaveSimulation: FC = () => {
   const fieldImage = useMemo(() => new FieldImage(WIDTH, HEIGHT), [])
 
   // const generateWave = useWaveGenerator({
-  //   fields: fieldImage.fields,
+  //   fields: fieldImage,
   //   xRange: useMemo(() => [WIDTH / 2 - 135, WIDTH / 2 - 135], []),
   //   yRange: useMemo(() => [HEIGHT / 2 - 100, HEIGHT / 2 - 50], []),
   //   framesLimit: 300,
@@ -50,21 +51,17 @@ export const WaveSimulation: FC = () => {
   }, [fieldImage])
 
   useEffect(() => {
-    fieldImage.setMaterial(
+    fieldImage.setMass(
       (x, y) => x === 0 || x === WIDTH - 1 || y === 0 || y === HEIGHT - 1,
       Infinity
     )
 
-    fieldImage.fields.forEach((field) => {
-      field.forEach((pixel, x, y) => {
-        if (
-          Math.sqrt((x - (WIDTH - 1) / 2) ** 2 + (y - (HEIGHT - 1) / 2) ** 2) <
-          100
-        ) {
-          pixel.height = 1
-        }
-      })
-    })
+    fieldImage.setHeight(
+      (x, y) =>
+        Math.sqrt((x - (WIDTH - 1) / 2) ** 2 + (y - (HEIGHT - 1) / 2) ** 2) <
+        100,
+      1
+    )
 
     run()
   }, [fieldImage, run])

@@ -16,14 +16,21 @@ export class FieldImage {
     this.fields.forEach((field) => field.iterate())
   }
 
-  setMaterial(
-    condition: (i: number, j: number) => boolean,
-    massMultiplier: number
-  ) {
+  setMass(condition: (x: number, y: number) => boolean, mass: number) {
     this.fields.forEach((field) => {
       field.forEach((pixel, x, y) => {
         if (condition(x, y)) {
-          pixel.mass *= massMultiplier
+          pixel.mass = mass
+        }
+      })
+    })
+  }
+
+  setHeight(condition: (x: number, y: number) => boolean, height: number) {
+    this.fields.forEach((field) => {
+      field.forEach((pixel, x, y) => {
+        if (condition(x, y)) {
+          pixel.height = height
         }
       })
     })
