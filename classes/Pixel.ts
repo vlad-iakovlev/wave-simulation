@@ -23,11 +23,17 @@ export class Pixel {
 
   getValue(source: PixelValueSource) {
     switch (source) {
-      case 'height':
-        return Math.max(0, Math.min(1, this.height))
+      case 'height': {
+        if (this.height < 0) return 0
+        if (this.height > 1) return 1
+        return this.height
+      }
 
-      case 'accumulated':
-        return Math.pow(Math.min(1, this.accumulated * 0.0005), 2)
+      case 'accumulated': {
+        const accumulatedNormalized = this.accumulated * 0.0005
+        if (accumulatedNormalized > 1) return 1
+        return accumulatedNormalized * accumulatedNormalized
+      }
 
       default:
         return 0

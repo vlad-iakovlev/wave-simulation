@@ -1,4 +1,3 @@
-import { truthy } from '../utils/truthy'
 import { Pixel } from './Pixel'
 
 export class Field {
