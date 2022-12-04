@@ -15,17 +15,9 @@ export class Pixel {
     this.accumulated += Math.abs(this.height)
   }
 
-  iterateVelocity(adjacentPixels: Pixel[]) {
-    if (!Number.isFinite(this.mass) || !adjacentPixels.length) {
-      return
-    }
-
+  iterateVelocity(force: number) {
+    if (!Number.isFinite(this.mass)) return
     const speed = 1 / this.mass - this.massShift
-
-    const force =
-      adjacentPixels.reduce((acc, pixel) => acc + pixel.height, 0) /
-      adjacentPixels.length
-
     this.velocity += (force - this.height) * speed
   }
 

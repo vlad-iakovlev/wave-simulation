@@ -32,14 +32,30 @@ export class Field {
 
     for (let i = 0; i < this.size[0]; i++) {
       for (let j = 0; j < this.size[1]; j++) {
-        this.pixels[i][j].iterateVelocity(
-          [
-            this.pixels[i - 1]?.[j],
-            this.pixels[i + 1]?.[j],
-            this.pixels[i][j - 1],
-            this.pixels[i][j + 1],
-          ].filter(truthy)
-        )
+        let force = 0
+        let count = 0
+
+        if (i > 0) {
+          force += this.pixels[i - 1][j].height
+          count += 1
+        }
+
+        if (i < this.size[0] - 1) {
+          force += this.pixels[i + 1][j].height
+          count += 1
+        }
+
+        if (j > 0) {
+          force += this.pixels[i][j - 1].height
+          count += 1
+        }
+
+        if (j < this.size[1] - 1) {
+          force += this.pixels[i][j + 1].height
+          count += 1
+        }
+
+        this.pixels[i][j].iterateVelocity(force / count)
       }
     }
   }

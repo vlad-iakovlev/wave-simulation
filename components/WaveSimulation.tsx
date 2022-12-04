@@ -57,7 +57,10 @@ export const WaveSimulation: FC = () => {
 
     fieldImage.fields.forEach((field) => {
       field.forEach((pixel, i, j) => {
-        if (Math.sqrt((i - WIDTH / 2) ** 2 + (j - HEIGHT / 2) ** 2) < 100) {
+        if (
+          Math.sqrt((i - (WIDTH - 1) / 2) ** 2 + (j - (HEIGHT - 1) / 2) ** 2) <
+          100
+        ) {
           pixel.height = 1
         }
       })
