@@ -201,29 +201,19 @@ export class FieldImage {
     canvas.width = this.width
     canvas.height = this.height
 
-    let imageCanvas: HTMLCanvasElement
+    let image: HTMLCanvasElement
     switch (source) {
       case 'height':
-        imageCanvas = this.getImageByHeight()
+        image = this.getImageByHeight()
         break
 
       case 'accumulated':
-        imageCanvas = this.getImageByAccumulated()
+        image = this.getImageByAccumulated()
         break
     }
 
     const ctx = canvas.getContext('2d')
     ctx?.scale(1, -1)
-    ctx?.drawImage(
-      imageCanvas,
-      0,
-      imageCanvas.height - this.height,
-      this.width,
-      this.height,
-      0,
-      0,
-      this.width,
-      -this.height
-    )
+    ctx?.drawImage(image, 0, -image.height, image.width, image.height)
   }
 }
