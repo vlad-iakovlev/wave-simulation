@@ -174,38 +174,41 @@ export class FieldImage {
 
   private getImageByHeight() {
     this.getImageByHeightKernel(this.pixelHeight)
-    return new ImageData(
-      this.getImageByHeightKernel.getPixels() as unknown as Uint8ClampedArray,
-      this.width,
-      this.height
-    )
+    return this.getImageByHeightKernel.canvas as HTMLCanvasElement
   }
 
   private getImageByAccumulated() {
     this.getImageByAccumulatedKernel(this.pixelAccumulated)
-    return new ImageData(
-      this.getImageByAccumulatedKernel.getPixels() as unknown as Uint8ClampedArray,
-      this.width,
-      this.height
-    )
+    return this.getImageByAccumulatedKernel.canvas as HTMLCanvasElement
   }
 
   draw(canvas: HTMLCanvasElement, source: PixelValueSource) {
     canvas.width = this.width
     canvas.height = this.height
 
-    // GPU.js makes the image flipped vertically
-    canvas.style.transform = 'scale(1, -1)'
-
-    const ctx = canvas.getContext('2d')
+    let imageCanvas: HTMLCanvasElement
     switch (source) {
       case 'height':
-        ctx?.putImageData(this.getImageByHeight(), 0, 0)
+        imageCanvas = this.getImageByHeight()
         break
 
       case 'accumulated':
-        ctx?.putImageData(this.getImageByAccumulated(), 0, 0)
+        imageCanvas = this.getImageByAccumulated()
         break
     }
+
+    const ctx = canvas.getContext('2d')
+    ctx?.scale(1, -1)
+    ctx?.drawImage(
+      imageCanvas,
+      0,
+      imageCanvas.height - this.height,
+      this.width,
+      this.height,
+      0,
+      0,
+      this.width,
+      -this.height
+    )
   }
 }
