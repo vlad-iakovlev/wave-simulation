@@ -30,14 +30,15 @@ export const Demo2: FC = () => {
     fieldImage.current = new FieldImage(width, height)
 
     fieldImage.current.setUpdateMass(function (pixelMass, frame) {
-      const width = this.output.y
-      const height = this.output.x
       const { x, y } = this.thread
 
       if (frame === 0) {
         if (
-          Math.sqrt((y - (width - 1) / 2) ** 2 + (x - (height - 1) / 2) ** 2) <
-          Math.min(width, height) / 4
+          Math.sqrt(
+            (y - (this.output.y - 1) / 2) ** 2 +
+              (x - (this.output.x - 1) / 2) ** 2
+          ) <
+          Math.min(this.output.y, this.output.x) / 4
         ) {
           return 1.33
         }
@@ -49,8 +50,6 @@ export const Demo2: FC = () => {
     })
 
     fieldImage.current.setUpdateHeight(function (pixelHeight, frame) {
-      const width = this.output.z
-      const height = this.output.y
       const { x, y, z } = this.thread
 
       if (frame === 0) {
@@ -59,9 +58,12 @@ export const Demo2: FC = () => {
 
       if (
         frame < 300 &&
-        z === Math.floor(width / 2 - Math.min(width, height) / 3) &&
-        y > height / 2 - Math.min(width, height) / 5 &&
-        y < height / 2 - Math.min(width, height) / 7
+        z ===
+          Math.floor(
+            this.output.z / 2 - Math.min(this.output.z, this.output.y) / 3
+          ) &&
+        y > this.output.y / 2 - Math.min(this.output.z, this.output.y) / 5 &&
+        y < this.output.y / 2 - Math.min(this.output.z, this.output.y) / 7
       ) {
         return Math.sin(frame * 0.8) * 12
       }
