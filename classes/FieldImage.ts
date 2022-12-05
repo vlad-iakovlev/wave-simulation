@@ -9,6 +9,14 @@ export class FieldImage {
   private pixelVelocity: Texture | number[][][]
   private pixelAccumulated: Texture | number[][][]
 
+  private uploadPixelMassKernel = this.gpu.createKernel(
+    function (pixelMass: number[][]) {
+      const { x, y } = this.thread
+      return pixelMass[y][x]
+    },
+    { output: [this.height, this.width], pipeline: true, immutable: true }
+  )
+
   private iterateHeightKernel = this.gpu.createKernel(
     function (pixelHeight: number[][][], pixelVelocity: number[][][]) {
       const { x, y, z } = this.thread
@@ -138,6 +146,12 @@ export class FieldImage {
     }
   }
 
+  private uploadPixelMass() {
+    if (Array.isArray(this.pixelMass)) {
+      this.pixelMass = this.uploadPixelMassKernel(this.pixelMass) as Texture
+    }
+  }
+
   private iterateHeight() {
     const pixelHeight = this.iterateHeightKernel(
       this.pixelHeight,
@@ -167,6 +181,7 @@ export class FieldImage {
   }
 
   iterate() {
+    this.uploadPixelMass()
     this.iterateHeight()
     this.iterateAccumulated()
     this.iterateVelocity()
