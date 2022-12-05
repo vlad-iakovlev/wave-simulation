@@ -14,7 +14,18 @@ export const Demo1: FC = () => {
   }, [])
 
   const init = useCallback(() => {
-    const { width, height } = document.documentElement.getBoundingClientRect()
+    let { width, height } = document.documentElement.getBoundingClientRect()
+    const scale = window.devicePixelRatio
+    width = Math.floor(width * scale)
+    height = Math.floor(height * scale)
+
+    // iOS scroll triggers resize, ignore it
+    if (
+      fieldImage.current?.width === width &&
+      fieldImage.current?.height === height
+    ) {
+      return
+    }
 
     fieldImage.current = new FieldImage(width, height)
 
@@ -37,5 +48,5 @@ export const Demo1: FC = () => {
     }
   }, [init])
 
-  return <canvas ref={canvas} />
+  return <canvas className="w-screen h-screen" ref={canvas} />
 }

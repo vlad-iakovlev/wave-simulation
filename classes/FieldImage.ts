@@ -85,7 +85,7 @@ export class FieldImage {
     { output: [this.width, this.height], graphical: true }
   )
 
-  constructor(private width: number, private height: number) {
+  constructor(public readonly width: number, public readonly height: number) {
     this.pixelMass = []
     this.pixelHeight = []
     this.pixelVelocity = []
