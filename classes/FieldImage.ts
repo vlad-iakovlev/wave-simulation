@@ -214,6 +214,6 @@ export class FieldImage {
 
     const ctx = canvas.getContext('2d')
     ctx?.scale(1, -1)
-    ctx?.drawImage(image, 0, -image.height, image.width, image.height)
+    ctx?.drawImage(image, 0, 0, image.width, -image.height)
   }
 }
