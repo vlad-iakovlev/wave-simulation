@@ -1,43 +1,85 @@
-import { FC, useCallback, useEffect, useMemo, useRef } from 'react'
+import { FC, useCallback, useEffect, useRef } from 'react'
 import { FieldImage } from '../classes/FieldImage'
-import { useWaveGenerator } from '../hooks/useWaveGenerator'
-
-const WIDTH = 600
-const HEIGHT = 400
 
 export const Demo2: FC = () => {
   const canvas = useRef<HTMLCanvasElement>(null)
-  const fieldImage = useMemo(() => new FieldImage(WIDTH, HEIGHT), [])
+  const fieldImage = useRef<FieldImage>()
 
-  const generateWave = useWaveGenerator({
-    fieldImage,
-    xRange: useMemo(() => [WIDTH / 2 - 135, WIDTH / 2 - 135], []),
-    yRange: useMemo(() => [HEIGHT / 2 - 100, HEIGHT / 2 - 50], []),
-    framesLimit: 300,
-  })
-
-  const run = useCallback(() => {
-    if (canvas.current) {
-      fieldImage.draw(canvas.current, 'accumulated')
-      generateWave()
-      fieldImage.iterate()
-      window.requestAnimationFrame(run)
+  const run = useCallback((currentFieldImage: FieldImage) => {
+    if (fieldImage.current === currentFieldImage && canvas.current) {
+      currentFieldImage.iterate()
+      currentFieldImage.draw(canvas.current, 'accumulated')
+      window.requestAnimationFrame(() => run(currentFieldImage))
     }
-  }, [fieldImage, generateWave])
+  }, [])
+
+  const init = useCallback(() => {
+    let { width, height } = document.documentElement.getBoundingClientRect()
+    const scale = window.devicePixelRatio
+    width = Math.floor(width * scale)
+    height = Math.floor(height * scale)
+
+    // iOS scroll triggers resize, ignore it
+    if (
+      fieldImage.current?.width === width &&
+      fieldImage.current?.height === height
+    ) {
+      return
+    }
+
+    fieldImage.current = new FieldImage(width, height)
+
+    fieldImage.current.setUpdateMass(function (pixelMass, frame) {
+      const width = this.output.y
+      const height = this.output.x
+      const { x, y } = this.thread
+
+      if (frame === 0) {
+        if (
+          Math.sqrt((y - (width - 1) / 2) ** 2 + (x - (height - 1) / 2) ** 2) <
+          Math.min(width, height) / 4
+        ) {
+          return 1.33
+        }
+
+        return 1
+      }
+
+      return pixelMass[y][x]
+    })
+
+    fieldImage.current.setUpdateHeight(function (pixelHeight, frame) {
+      const width = this.output.z
+      const height = this.output.y
+      const { x, y, z } = this.thread
+
+      if (frame === 0) {
+        return 0
+      }
+
+      if (
+        frame < 300 &&
+        z === Math.floor(width / 2 - Math.min(width, height) / 3) &&
+        y > height / 2 - Math.min(width, height) / 5 &&
+        y < height / 2 - Math.min(width, height) / 7
+      ) {
+        return Math.sin(frame * 0.8) * 12
+      }
+
+      return pixelHeight[z][y][x]
+    })
+
+    run(fieldImage.current)
+  }, [run])
 
   useEffect(() => {
-    fieldImage.setMass(
-      (x, y) => x === 0 || x === WIDTH - 1 || y === 0 || y === HEIGHT - 1,
-      Infinity
-    )
+    init()
+    window.addEventListener('resize', init)
 
-    fieldImage.setMass(
-      (x, y) => Math.sqrt((x - WIDTH / 2) ** 2 + (y - HEIGHT / 2) ** 2) < 100,
-      1.33
-    )
+    return () => {
+      window.removeEventListener('resize', init)
+    }
+  }, [init])
 
-    run()
-  }, [fieldImage, run])
-
-  return <canvas ref={canvas} />
+  return <canvas className="w-full h-full" ref={canvas} />
 }

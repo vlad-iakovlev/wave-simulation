@@ -8,9 +8,7 @@ const Home: NextPage = () => (
       <title>Wave simulation – Demo 2</title>
     </Head>
 
-    <div className="flex items-center justify-center min-h-full">
-      <Demo2 />
-    </div>
+    <Demo2 />
   </>
 )
 

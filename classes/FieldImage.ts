@@ -1,43 +1,90 @@
-import { GPU, Texture } from 'gpu.js'
+import { KernelFunction, Texture } from 'gpu.js'
+import { generate2dArray } from '../utils/generate2dArray'
+import { generate3dArray } from '../utils/generate3dArray'
+import { EasyGPU } from './EasyGPU'
 
 type PixelValueSource = 'height' | 'accumulated'
 
 export class FieldImage {
-  private gpu = new GPU()
-  private pixelMass: Texture | number[][]
-  private pixelHeight: Texture | number[][][]
-  private pixelVelocity: Texture | number[][][]
-  private pixelAccumulated: Texture | number[][][]
+  private gpu = new EasyGPU(this.width, this.height)
+  private pixelMass: Texture | number[][] = generate2dArray(
+    this.width,
+    this.height
+  )
+  private pixelHeight: Texture | number[][][] = generate3dArray(
+    this.width,
+    this.height,
+    3
+  )
+  private pixelAccumulated: Texture | number[][][] = generate3dArray(
+    this.width,
+    this.height,
+    3
+  )
+  private pixelVelocity: Texture | number[][][] = generate3dArray(
+    this.width,
+    this.height,
+    3
+  )
+  private frame = 0
 
-  private uploadPixelMassKernel = this.gpu.createKernel(
-    function (pixelMass: number[][]) {
+  private kernels = {
+    updateMass: this.gpu.create2dKernel(function (
+      pixelMass: number[][],
+      frame: number
+    ) {
+      if (frame === 0) return 1
       const { x, y } = this.thread
       return pixelMass[y][x]
-    },
-    { output: [this.height, this.width], pipeline: true, immutable: true }
-  )
+    }),
 
-  private iterateHeightKernel = this.gpu.createKernel(
-    function (pixelHeight: number[][][], pixelVelocity: number[][][]) {
+    updateHeight: this.gpu.create3dKernel(function (
+      pixelHeight: number[][][],
+      frame: number
+    ) {
+      if (frame === 0) return 0
+      const { x, y, z } = this.thread
+      return pixelHeight[z][y][x]
+    }),
+
+    updateAccumulated: this.gpu.create3dKernel(function (
+      pixelAccumulated: number[][][],
+      frame: number
+    ) {
+      if (frame === 0) return 0
+      const { x, y, z } = this.thread
+      return pixelAccumulated[z][y][x]
+    }),
+
+    updateVelocity: this.gpu.create3dKernel(function (
+      pixelVelocity: number[][][],
+      frame: number
+    ) {
+      if (frame === 0) return 0
+      const { x, y, z } = this.thread
+      return pixelVelocity[z][y][x]
+    }),
+
+    iterateHeight: this.gpu.create3dKernel(function (
+      pixelHeight: number[][][],
+      pixelVelocity: number[][][]
+    ) {
       const { x, y, z } = this.thread
       return pixelHeight[z][y][x] + pixelVelocity[z][y][x]
-    },
-    { output: [3, this.height, this.width], pipeline: true, immutable: true }
-  )
+    }),
 
-  private iterateAccumulatedKernel = this.gpu.createKernel(
-    function (pixelHeight: number[][][], pixelAccumulated: number[][][]) {
+    iterateAccumulated: this.gpu.create3dKernel(function (
+      pixelAccumulated: number[][][],
+      pixelHeight: number[][][]
+    ) {
       const { x, y, z } = this.thread
       return pixelAccumulated[z][y][x] + Math.abs(pixelHeight[z][y][x])
-    },
-    { output: [3, this.height, this.width], pipeline: true, immutable: true }
-  )
+    }),
 
-  private iterateVelocityKernel = this.gpu.createKernel(
-    function (
-      pixelHeight: number[][][],
+    iterateVelocity: this.gpu.create3dKernel(function (
       pixelVelocity: number[][][],
-      pixelMass: number[][]
+      pixelMass: number[][],
+      pixelHeight: number[][][]
     ) {
       const { x, y, z } = this.thread
 
@@ -61,140 +108,107 @@ export class FieldImage {
         (force / count - pixelHeight[z][y][x]) *
           (1 / pixelMass[z][y] - [0.02, 0, -0.04][x])
       )
-    },
-    {
-      output: [3, this.height, this.width],
-      pipeline: true,
-      immutable: true,
-    }
-  )
+    }),
 
-  private getImageByHeightKernel = this.gpu.createKernel(
-    function (pixelHeight: number[][][]) {
+    getImageByHeight: this.gpu.createImageKernel(function (
+      pixelHeight: number[][][]
+    ) {
       const { x, y } = this.thread
       this.color(
         pixelHeight[x][y][0],
         pixelHeight[x][y][1],
         pixelHeight[x][y][2]
       )
-    },
-    { output: [this.width, this.height], graphical: true }
-  )
+    }),
 
-  private getImageByAccumulatedKernel = this.gpu.createKernel(
-    function (pixelAccumulated: number[][][]) {
+    getImageByAccumulated: this.gpu.createImageKernel(function (
+      pixelAccumulated: number[][][]
+    ) {
       const { x, y } = this.thread
       this.color(
         Math.pow(pixelAccumulated[x][y][0] * 0.0005, 2),
         Math.pow(pixelAccumulated[x][y][1] * 0.0005, 2),
         Math.pow(pixelAccumulated[x][y][2] * 0.0005, 2)
       )
-    },
-    { output: [this.width, this.height], graphical: true }
-  )
-
-  constructor(public readonly width: number, public readonly height: number) {
-    this.pixelMass = []
-    this.pixelHeight = []
-    this.pixelVelocity = []
-    this.pixelAccumulated = []
-
-    for (let x = 0; x < width; x++) {
-      this.pixelMass[x] = []
-      this.pixelHeight[x] = []
-      this.pixelVelocity[x] = []
-      this.pixelAccumulated[x] = []
-
-      for (let y = 0; y < height; y++) {
-        this.pixelMass[x][y] = 1
-        this.pixelHeight[x][y] = [0, 0, 0]
-        this.pixelVelocity[x][y] = [0, 0, 0]
-        this.pixelAccumulated[x][y] = [0, 0, 0]
-      }
-    }
+    }),
   }
 
-  setMass(condition: (x: number, y: number) => boolean, mass: number) {
-    if (!Array.isArray(this.pixelMass)) {
-      const texture = this.pixelMass
-      this.pixelMass = texture.toArray() as number[][]
-      texture.delete()
-    }
+  constructor(public readonly width: number, public readonly height: number) {}
 
-    for (let x = 0; x < this.width; x++) {
-      for (let y = 0; y < this.height; y++) {
-        if (condition(x, y)) {
-          this.pixelMass[x][y] = mass
-        }
-      }
-    }
+  setUpdateMass(kernel: KernelFunction<[number[][], number]>) {
+    this.kernels.updateMass = this.gpu.create2dKernel(kernel)
   }
 
-  setHeight(condition: (x: number, y: number) => boolean, height: number) {
-    if (!Array.isArray(this.pixelHeight)) {
-      const texture = this.pixelHeight
-      this.pixelHeight = texture.toArray() as number[][][]
-      texture.delete()
-    }
-
-    for (let x = 0; x < this.width; x++) {
-      for (let y = 0; y < this.height; y++) {
-        if (condition(x, y)) {
-          this.pixelHeight[x][y] = [height, height, height]
-        }
-      }
-    }
+  setUpdateHeight(kernel: KernelFunction<[number[][][], number]>) {
+    this.kernels.updateHeight = this.gpu.create3dKernel(kernel)
   }
 
-  private uploadPixelMass() {
-    if (Array.isArray(this.pixelMass)) {
-      this.pixelMass = this.uploadPixelMassKernel(this.pixelMass) as Texture
-    }
+  setUpdateAccumulated(kernel: KernelFunction<[number[][][], number]>) {
+    this.kernels.updateAccumulated = this.gpu.create3dKernel(kernel)
   }
 
-  private iterateHeight() {
-    const pixelHeight = this.iterateHeightKernel(
-      this.pixelHeight,
-      this.pixelVelocity
-    ) as Texture
-    if (!Array.isArray(this.pixelHeight)) this.pixelHeight.delete()
-    this.pixelHeight = pixelHeight
+  setUpdateVelocity(kernel: KernelFunction<[number[][][], number]>) {
+    this.kernels.updateVelocity = this.gpu.create3dKernel(kernel)
   }
 
-  private iterateAccumulated() {
-    const pixelAccumulated = this.iterateAccumulatedKernel(
-      this.pixelHeight,
-      this.pixelAccumulated
-    ) as Texture
-    if (!Array.isArray(this.pixelAccumulated)) this.pixelAccumulated.delete()
-    this.pixelAccumulated = pixelAccumulated
-  }
-
-  private iterateVelocity() {
-    const pixelVelocity = this.iterateVelocityKernel(
-      this.pixelHeight,
-      this.pixelVelocity,
-      this.pixelMass
-    ) as Texture
-    if (!Array.isArray(this.pixelVelocity)) this.pixelVelocity.delete()
-    this.pixelVelocity = pixelVelocity
+  private updateValue(
+    key: 'pixelMass' | 'pixelHeight' | 'pixelAccumulated' | 'pixelVelocity',
+    newValue: Texture
+  ) {
+    const oldValue = this[key]
+    if (!Array.isArray(oldValue)) oldValue.delete()
+    this[key] = newValue
   }
 
   iterate() {
-    this.uploadPixelMass()
-    this.iterateHeight()
-    this.iterateAccumulated()
-    this.iterateVelocity()
+    this.updateValue(
+      'pixelMass',
+      this.kernels.updateMass(this.pixelMass, this.frame)
+    )
+
+    this.updateValue(
+      'pixelHeight',
+      this.kernels.updateHeight(this.pixelHeight, this.frame)
+    )
+
+    this.updateValue(
+      'pixelAccumulated',
+      this.kernels.updateAccumulated(this.pixelAccumulated, this.frame)
+    )
+
+    this.updateValue(
+      'pixelVelocity',
+      this.kernels.updateVelocity(this.pixelVelocity, this.frame)
+    )
+
+    this.updateValue(
+      'pixelHeight',
+      this.kernels.iterateHeight(this.pixelHeight, this.pixelVelocity)
+    )
+
+    this.updateValue(
+      'pixelAccumulated',
+      this.kernels.iterateAccumulated(this.pixelAccumulated, this.pixelHeight)
+    )
+
+    this.updateValue(
+      'pixelVelocity',
+      this.kernels.iterateVelocity(
+        this.pixelVelocity,
+        this.pixelMass,
+        this.pixelHeight
+      )
+    )
+
+    this.frame++
   }
 
   private getImageByHeight() {
-    this.getImageByHeightKernel(this.pixelHeight)
-    return this.getImageByHeightKernel.canvas as HTMLCanvasElement
+    return this.kernels.getImageByHeight(this.pixelHeight)
   }
 
   private getImageByAccumulated() {
-    this.getImageByAccumulatedKernel(this.pixelAccumulated)
-    return this.getImageByAccumulatedKernel.canvas as HTMLCanvasElement
+    return this.kernels.getImageByAccumulated(this.pixelAccumulated)
   }
 
   draw(canvas: HTMLCanvasElement, source: PixelValueSource) {
