@@ -14,12 +14,10 @@ export const Demo1: FC = () => {
   }, [])
 
   const init = useCallback(() => {
-    const { width, height } = document.documentElement.getBoundingClientRect()
-
-    // TODO: enable retina
-    // const scale = window.devicePixelRatio
-    // width = Math.floor(width * scale)
-    // height = Math.floor(height * scale)
+    let { width, height } = document.documentElement.getBoundingClientRect()
+    const scale = window.devicePixelRatio
+    width = Math.floor(width * scale)
+    height = Math.floor(height * scale)
 
     // iOS scroll triggers resize, ignore it
     if (
@@ -50,5 +48,5 @@ export const Demo1: FC = () => {
     }
   }, [init])
 
-  return <canvas ref={canvas} />
+  return <canvas className="w-full h-full" ref={canvas} />
 }
