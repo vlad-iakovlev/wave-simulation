@@ -48,5 +48,5 @@ export const Demo1: FC = () => {
     }
   }, [init])
 
-  return <canvas className="w-screen h-screen" ref={canvas} />
+  return <canvas className="w-full h-full" ref={canvas} />
 }
