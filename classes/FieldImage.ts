@@ -11,16 +11,16 @@ export class FieldImage {
 
   private iterateHeightKernel = this.gpu.createKernel(
     function (pixelHeight: number[][][], pixelVelocity: number[][][]) {
-      const { x: i, y, z: x } = this.thread
-      return pixelHeight[x][y][i] + pixelVelocity[x][y][i]
+      const { x, y, z } = this.thread
+      return pixelHeight[z][y][x] + pixelVelocity[z][y][x]
     },
     { output: [3, this.height, this.width], pipeline: true, immutable: true }
   )
 
   private iterateAccumulatedKernel = this.gpu.createKernel(
     function (pixelHeight: number[][][], pixelAccumulated: number[][][]) {
-      const { x: i, y, z: x } = this.thread
-      return pixelAccumulated[x][y][i] + Math.abs(pixelHeight[x][y][i])
+      const { x, y, z } = this.thread
+      return pixelAccumulated[z][y][x] + Math.abs(pixelHeight[z][y][x])
     },
     { output: [3, this.height, this.width], pipeline: true, immutable: true }
   )
@@ -31,38 +31,27 @@ export class FieldImage {
       pixelVelocity: number[][][],
       pixelMass: number[][]
     ) {
-      const { x: i, y, z: x } = this.thread
+      const { x, y, z } = this.thread
 
-      if (pixelMass[x][y] <= 0 || pixelMass[x][y] > 100)
-        return pixelVelocity[x][y][i]
+      if (pixelMass[z][y] <= 0 || pixelMass[z][y] > 100)
+        return pixelVelocity[z][y][x]
 
-      let force = 0
-      let count = 0
+      const force =
+        (z > 0 ? pixelHeight[z - 1][y][x] : 0) +
+        (y > 0 ? pixelHeight[z][y - 1][x] : 0) +
+        (z < this.output.z - 1 ? pixelHeight[z + 1][y][x] : 0) +
+        (y < this.output.y - 1 ? pixelHeight[z][y + 1][x] : 0)
 
-      if (x > 0) {
-        force += pixelHeight[x - 1][y][i]
-        count += 1
-      }
-
-      if (y > 0) {
-        force += pixelHeight[x][y - 1][i]
-        count += 1
-      }
-
-      if (x < this.output.z - 1) {
-        force += pixelHeight[x + 1][y][i]
-        count += 1
-      }
-
-      if (y < this.output.y - 1) {
-        force += pixelHeight[x][y + 1][i]
-        count += 1
-      }
+      const count =
+        (z > 0 ? 1 : 0) +
+        (y > 0 ? 1 : 0) +
+        (z < this.output.z - 1 ? 1 : 0) +
+        (y < this.output.y - 1 ? 1 : 0)
 
       return (
-        pixelVelocity[x][y][i] +
-        (force / count - pixelHeight[x][y][i]) *
-          (1 / pixelMass[x][y] - [0.02, 0, -0.04][i])
+        pixelVelocity[z][y][x] +
+        (force / count - pixelHeight[z][y][x]) *
+          (1 / pixelMass[z][y] - [0.02, 0, -0.04][x])
       )
     },
     {
