@@ -1,7 +1,5 @@
 import { GPU, Texture } from 'gpu.js'
 
-type PixelValueSource = 'height' | 'accumulated'
-
 type Kernel2D = (this: {
   pixelMass: number[][]
   pixelHeight: number[][][]
@@ -228,11 +226,9 @@ export class FieldImage {
     }),
 
     iterateVelocity: this.createKernel3D(function () {
-      if (
-        this.pixelMass[this.x][this.y] <= 0 ||
-        this.pixelMass[this.x][this.y] > 100
-      )
+      if (this.pixelMass[this.x][this.y] === 0) {
         return this.pixelVelocity[this.x][this.y][this.i]
+      }
 
       const force =
         (this.x > 0 ? this.pixelHeight[this.x - 1][this.y][this.i] : 0) +
@@ -257,19 +253,27 @@ export class FieldImage {
       )
     }),
 
+    getImageByMass: this.createKernelImage(function () {
+      this.color(
+        this.pixelMass[this.x][this.y] / 100,
+        this.pixelMass[this.x][this.y] / 100,
+        this.pixelMass[this.x][this.y] / 100
+      )
+    }),
+
     getImageByHeight: this.createKernelImage(function () {
       this.color(
-        this.pixelHeight[this.x][this.y][0],
-        this.pixelHeight[this.x][this.y][1],
-        this.pixelHeight[this.x][this.y][2]
+        Math.abs(this.pixelHeight[this.x][this.y][0]),
+        Math.abs(this.pixelHeight[this.x][this.y][1]),
+        Math.abs(this.pixelHeight[this.x][this.y][2])
       )
     }),
 
     getImageByAccumulated: this.createKernelImage(function () {
       this.color(
-        Math.pow(this.pixelAccumulated[this.x][this.y][0] * 0.0005, 2),
-        Math.pow(this.pixelAccumulated[this.x][this.y][1] * 0.0005, 2),
-        Math.pow(this.pixelAccumulated[this.x][this.y][2] * 0.0005, 2)
+        Math.pow(this.pixelAccumulated[this.x][this.y][0] * 0.005, 2),
+        Math.pow(this.pixelAccumulated[this.x][this.y][1] * 0.005, 2),
+        Math.pow(this.pixelAccumulated[this.x][this.y][2] * 0.005, 2)
       )
     }),
   }
@@ -314,12 +318,16 @@ export class FieldImage {
     this.frame++
   }
 
-  draw(canvas: HTMLCanvasElement, source: PixelValueSource) {
+  draw(canvas: HTMLCanvasElement, source: 'mass' | 'height' | 'accumulated') {
     canvas.width = this.width
     canvas.height = this.height
 
     let image: HTMLCanvasElement
     switch (source) {
+      case 'mass':
+        image = this.kernels.getImageByMass()
+        break
+
       case 'height':
         image = this.kernels.getImageByHeight()
         break

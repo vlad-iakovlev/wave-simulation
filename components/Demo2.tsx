@@ -59,7 +59,7 @@ export const Demo2: FC = () => {
         this.y > this.height / 2 - Math.min(this.width, this.height) / 5 &&
         this.y < this.height / 2 - Math.min(this.width, this.height) / 7
       ) {
-        return Math.sin(this.frame * 0.8) * 12
+        return Math.sin(this.frame * 0.8)
       }
 
       return this.pixelHeight[this.x][this.y][this.i]
