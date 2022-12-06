@@ -231,7 +231,7 @@ export class FieldImage {
 
     iterateVelocity: this.createKernel3D(function () {
       if (this.pixelMass[this.x][this.y] === 0) {
-        return this.pixelVelocity[this.x][this.y][this.i]
+        return 0
       }
 
       const force =
