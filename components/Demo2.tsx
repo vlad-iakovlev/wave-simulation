@@ -29,16 +29,14 @@ export const Demo2: FC = () => {
 
     fieldImage.current = new FieldImage(width, height)
 
-    fieldImage.current.setUpdateMass(function (pixelMass, frame) {
-      const { x, y } = this.thread
-
-      if (frame === 0) {
+    fieldImage.current.setUpdateMass(function () {
+      if (this.frame === 0) {
         if (
           Math.sqrt(
-            (y - (this.output.y - 1) / 2) ** 2 +
-              (x - (this.output.x - 1) / 2) ** 2
+            (this.x - (this.width - 1) / 2) ** 2 +
+              (this.y - (this.height - 1) / 2) ** 2
           ) <
-          Math.min(this.output.y, this.output.x) / 4
+          Math.min(this.width, this.height) / 4
         ) {
           return 1.33
         }
@@ -46,29 +44,25 @@ export const Demo2: FC = () => {
         return 1
       }
 
-      return pixelMass[y][x]
+      return this.pixelMass[this.x][this.y]
     })
 
-    fieldImage.current.setUpdateHeight(function (pixelHeight, frame) {
-      const { x, y, z } = this.thread
-
-      if (frame === 0) {
+    fieldImage.current.setUpdateHeight(function () {
+      if (this.frame === 0) {
         return 0
       }
 
       if (
-        frame < 300 &&
-        z ===
-          Math.floor(
-            this.output.z / 2 - Math.min(this.output.z, this.output.y) / 3
-          ) &&
-        y > this.output.y / 2 - Math.min(this.output.z, this.output.y) / 5 &&
-        y < this.output.y / 2 - Math.min(this.output.z, this.output.y) / 7
+        this.frame < 300 &&
+        this.x ===
+          Math.floor(this.width / 2 - Math.min(this.width, this.height) / 3) &&
+        this.y > this.height / 2 - Math.min(this.width, this.height) / 5 &&
+        this.y < this.height / 2 - Math.min(this.width, this.height) / 7
       ) {
-        return Math.sin(frame * 0.8) * 12
+        return Math.sin(this.frame * 0.8) * 12
       }
 
-      return pixelHeight[z][y][x]
+      return this.pixelHeight[this.x][this.y][this.i]
     })
 
     run(fieldImage.current)

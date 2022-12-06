@@ -29,16 +29,14 @@ export const Demo1: FC = () => {
 
     fieldImage.current = new FieldImage(width, height)
 
-    fieldImage.current.setUpdateHeight(function (pixelHeight, frame) {
-      const { x, y, z } = this.thread
-
-      if (frame === 0) {
+    fieldImage.current.setUpdateHeight(function () {
+      if (this.frame === 0) {
         if (
           Math.sqrt(
-            (z - (this.output.z - 1) / 2) ** 2 +
-              (y - (this.output.y - 1) / 2) ** 2
+            (this.x - (this.width - 1) / 2) ** 2 +
+              (this.y - (this.height - 1) / 2) ** 2
           ) <
-          Math.min(this.output.z, this.output.y) / 4
+          Math.min(this.width, this.height) / 4
         ) {
           return 1
         }
@@ -46,7 +44,7 @@ export const Demo1: FC = () => {
         return 0
       }
 
-      return pixelHeight[z][y][x]
+      return this.pixelHeight[this.x][this.y][this.i]
     })
 
     run(fieldImage.current)
