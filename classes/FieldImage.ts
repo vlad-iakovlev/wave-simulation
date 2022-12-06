@@ -34,7 +34,9 @@ type KernelImage = (this: {
   height: number
   x: number
   y: number
-  color: (r: number, g: number, b: number) => void
+  r: number
+  g: number
+  b: number
 }) => void
 
 export const generate2dArray = (
@@ -76,9 +78,7 @@ const getFunctionBody = (func: Function) => {
   const funcString = func.toString()
   return funcString
     .substring(funcString.indexOf('{') + 1, funcString.lastIndexOf('}'))
-    .replaceAll('this.color', '__thisColor')
     .replaceAll('this.', '')
-    .replaceAll('__thisColor', 'this.color')
 }
 
 export class FieldImage {
@@ -170,7 +170,11 @@ export class FieldImage {
         const height = this.output.y
         const x = this.thread.x
         const y = this.thread.y
+        let r = 0
+        let g = 0
+        let b = 0
         ${getFunctionBody(kernel)}
+        this.color(r, g, b)
       }
     `)
 
@@ -254,27 +258,19 @@ export class FieldImage {
     }),
 
     getImageByMass: this.createKernelImage(function () {
-      this.color(
-        this.pixelMass[this.x][this.y] / 100,
-        this.pixelMass[this.x][this.y] / 100,
-        this.pixelMass[this.x][this.y] / 100
-      )
+      this.r = this.g = this.b = this.pixelMass[this.x][this.y] / 100
     }),
 
     getImageByHeight: this.createKernelImage(function () {
-      this.color(
-        Math.abs(this.pixelHeight[this.x][this.y][0]),
-        Math.abs(this.pixelHeight[this.x][this.y][1]),
-        Math.abs(this.pixelHeight[this.x][this.y][2])
-      )
+      this.r = Math.abs(this.pixelHeight[this.x][this.y][0])
+      this.g = Math.abs(this.pixelHeight[this.x][this.y][1])
+      this.b = Math.abs(this.pixelHeight[this.x][this.y][2])
     }),
 
     getImageByAccumulated: this.createKernelImage(function () {
-      this.color(
-        Math.pow(this.pixelAccumulated[this.x][this.y][0] * 0.005, 2),
-        Math.pow(this.pixelAccumulated[this.x][this.y][1] * 0.005, 2),
-        Math.pow(this.pixelAccumulated[this.x][this.y][2] * 0.005, 2)
-      )
+      this.r = Math.pow(this.pixelAccumulated[this.x][this.y][0] * 0.005, 2)
+      this.g = Math.pow(this.pixelAccumulated[this.x][this.y][1] * 0.005, 2)
+      this.b = Math.pow(this.pixelAccumulated[this.x][this.y][2] * 0.005, 2)
     }),
   }
 
