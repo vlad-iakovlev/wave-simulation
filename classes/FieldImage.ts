@@ -185,22 +185,18 @@ export class FieldImage {
 
   private kernels = {
     updateMass: this.createKernel2D(function () {
-      if (this.frame === 0) return 1
       return this.pixelMass[this.x][this.y]
     }),
 
     updateHeight: this.createKernel3D(function () {
-      if (this.frame === 0) return 0
       return this.pixelHeight[this.x][this.y][this.i]
     }),
 
     updateAccumulated: this.createKernel3D(function () {
-      if (this.frame === 0) return 0
       return this.pixelAccumulated[this.x][this.y][this.i]
     }),
 
     updateVelocity: this.createKernel3D(function () {
-      if (this.frame === 0) return 0
       return this.pixelVelocity[this.x][this.y][this.i]
     }),
 
