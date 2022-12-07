@@ -3,7 +3,6 @@ import { GPU, Texture } from 'gpu.js'
 type Kernel2D = (this: {
   pixelMass: number[][]
   pixelHeight: number[][][]
-  pixelAccumulated: number[][][]
   pixelVelocity: number[][][]
   frame: number
   width: number
@@ -15,7 +14,6 @@ type Kernel2D = (this: {
 type Kernel3D = (this: {
   pixelMass: number[][]
   pixelHeight: number[][][]
-  pixelAccumulated: number[][][]
   pixelVelocity: number[][][]
   frame: number
   width: number
@@ -28,7 +26,6 @@ type Kernel3D = (this: {
 type KernelImage = (this: {
   pixelMass: number[][]
   pixelHeight: number[][][]
-  pixelAccumulated: number[][][]
   pixelVelocity: number[][][]
   width: number
   height: number
@@ -74,7 +71,6 @@ export class FieldImage {
 
   private pixelMass = this.createTexture2D(1)
   private pixelHeight = this.createTexture3D(0)
-  private pixelAccumulated = this.createTexture3D(0)
   private pixelVelocity = this.createTexture3D(0)
   private frame = 0
 
@@ -83,7 +79,6 @@ export class FieldImage {
       kernel = function (
         pixelMass,
         pixelHeight,
-        pixelAccumulated,
         pixelVelocity,
         frame
       ) {
@@ -105,7 +100,6 @@ export class FieldImage {
       return createdKernel(
         this.pixelMass,
         this.pixelHeight,
-        this.pixelAccumulated,
         this.pixelVelocity,
         this.frame
       ) as Texture
@@ -117,7 +111,6 @@ export class FieldImage {
       kernel = function (
         pixelMass,
         pixelHeight,
-        pixelAccumulated,
         pixelVelocity,
         frame
       ) {
@@ -140,7 +133,6 @@ export class FieldImage {
       return createdKernel(
         this.pixelMass,
         this.pixelHeight,
-        this.pixelAccumulated,
         this.pixelVelocity,
         this.frame
       ) as Texture
@@ -152,7 +144,6 @@ export class FieldImage {
       kernel = function (
         pixelMass,
         pixelHeight,
-        pixelAccumulated,
         pixelVelocity
       ) {
         const width = this.output.x
@@ -173,12 +164,7 @@ export class FieldImage {
     })
 
     return () => {
-      createdKernel(
-        this.pixelMass,
-        this.pixelHeight,
-        this.pixelAccumulated,
-        this.pixelVelocity
-      )
+      createdKernel(this.pixelMass, this.pixelHeight, this.pixelVelocity)
       return createdKernel.canvas as HTMLCanvasElement
     }
   }
@@ -192,10 +178,6 @@ export class FieldImage {
       return this.pixelHeight[this.x][this.y][this.i]
     }),
 
-    updateAccumulated: this.createKernel3D(function () {
-      return this.pixelAccumulated[this.x][this.y][this.i]
-    }),
-
     updateVelocity: this.createKernel3D(function () {
       return this.pixelVelocity[this.x][this.y][this.i]
     }),
@@ -204,13 +186,6 @@ export class FieldImage {
       return (
         this.pixelHeight[this.x][this.y][this.i] +
         this.pixelVelocity[this.x][this.y][this.i]
-      )
-    }),
-
-    iterateAccumulated: this.createKernel3D(function () {
-      return (
-        this.pixelAccumulated[this.x][this.y][this.i] +
-        Math.abs(this.pixelHeight[this.x][this.y][this.i])
       )
     }),
 
@@ -243,19 +218,13 @@ export class FieldImage {
     }),
 
     getImageByMass: this.createKernelImage(function () {
-      this.r = this.g = this.b = this.pixelMass[this.x][this.y] / 100
+      this.r = this.g = this.b = this.pixelMass[this.x][this.y] / 10
     }),
 
     getImageByHeight: this.createKernelImage(function () {
       this.r = Math.abs(this.pixelHeight[this.x][this.y][0])
       this.g = Math.abs(this.pixelHeight[this.x][this.y][1])
       this.b = Math.abs(this.pixelHeight[this.x][this.y][2])
-    }),
-
-    getImageByAccumulated: this.createKernelImage(function () {
-      this.r = Math.pow(this.pixelAccumulated[this.x][this.y][0] * 0.005, 2)
-      this.g = Math.pow(this.pixelAccumulated[this.x][this.y][1] * 0.005, 2)
-      this.b = Math.pow(this.pixelAccumulated[this.x][this.y][2] * 0.005, 2)
     }),
   }
 
@@ -269,16 +238,12 @@ export class FieldImage {
     this.kernels.updateHeight = this.createKernel3D(kernel)
   }
 
-  setUpdateAccumulated(kernel: Kernel3D) {
-    this.kernels.updateAccumulated = this.createKernel3D(kernel)
-  }
-
   setUpdateVelocity(kernel: Kernel3D) {
     this.kernels.updateVelocity = this.createKernel3D(kernel)
   }
 
   private updateValue(
-    key: 'pixelMass' | 'pixelHeight' | 'pixelAccumulated' | 'pixelVelocity',
+    key: 'pixelMass' | 'pixelHeight' | 'pixelVelocity',
     newValue: Texture
   ) {
     this[key].delete()
@@ -288,17 +253,15 @@ export class FieldImage {
   iterate() {
     this.updateValue('pixelMass', this.kernels.updateMass())
     this.updateValue('pixelHeight', this.kernels.updateHeight())
-    this.updateValue('pixelAccumulated', this.kernels.updateAccumulated())
     this.updateValue('pixelVelocity', this.kernels.updateVelocity())
 
     this.updateValue('pixelHeight', this.kernels.iterateHeight())
-    this.updateValue('pixelAccumulated', this.kernels.iterateAccumulated())
     this.updateValue('pixelVelocity', this.kernels.iterateVelocity())
 
     this.frame++
   }
 
-  draw(canvas: HTMLCanvasElement, source: 'mass' | 'height' | 'accumulated') {
+  draw(canvas: HTMLCanvasElement, source: 'mass' | 'height') {
     canvas.width = this.width
     canvas.height = this.height
 
@@ -310,10 +273,6 @@ export class FieldImage {
 
       case 'height':
         image = this.kernels.getImageByHeight()
-        break
-
-      case 'accumulated':
-        image = this.kernels.getImageByAccumulated()
         break
     }
 

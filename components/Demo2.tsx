@@ -8,7 +8,7 @@ export const Demo2: FC = () => {
   const run = useCallback((currentFieldImage: FieldImage) => {
     if (fieldImage.current === currentFieldImage && canvas.current) {
       currentFieldImage.iterate()
-      currentFieldImage.draw(canvas.current, 'accumulated')
+      currentFieldImage.draw(canvas.current, 'height')
       window.requestAnimationFrame(() => run(currentFieldImage))
     }
   }, [])
