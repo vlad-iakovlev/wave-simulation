@@ -230,7 +230,7 @@ export class FieldImage {
       return (
         this.pixelVelocity[this.x][this.y][this.i] +
         (force / count - this.pixelHeight[this.x][this.y][this.i]) *
-          (1 / this.pixelMass[this.x][this.y] - [0.02, 0, -0.04][this.i])
+          ([0.98, 1, 1.04][this.i] / this.pixelMass[this.x][this.y])
       )
     }),
 
