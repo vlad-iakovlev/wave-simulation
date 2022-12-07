@@ -93,6 +93,7 @@ export class FieldImage {
       }
     `)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createdKernel = this.gpu.createKernel(kernel as any, {
       output: [this.height, this.width],
       pipeline: true,
@@ -130,6 +131,7 @@ export class FieldImage {
       }
     `)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createdKernel = this.gpu.createKernel(kernel as any, {
       output: [3, this.height, this.width],
       pipeline: true,
@@ -164,6 +166,7 @@ export class FieldImage {
       }
     `)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const createdKernel = this.gpu.createKernel(kernel as any, {
       output: [this.width, this.height],
       graphical: true,
