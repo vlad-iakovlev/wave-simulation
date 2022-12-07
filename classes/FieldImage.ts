@@ -50,7 +50,7 @@ const getFunctionBody = (func: Function) => {
 export class FieldImage {
   private gpu = new GPU()
 
-  createTexture2D = this.gpu.createKernel(
+  private createTexture2D = this.gpu.createKernel(
     function (value: number) {
       return value
     },
@@ -61,7 +61,7 @@ export class FieldImage {
     }
   ) as (value: number) => Texture
 
-  createTexture3D = this.gpu.createKernel(
+  private createTexture3D = this.gpu.createKernel(
     function (value: number) {
       return value
     },
@@ -78,7 +78,7 @@ export class FieldImage {
   private pixelVelocity = this.createTexture3D(0)
   private frame = 0
 
-  createKernel2D(kernel: Kernel2D) {
+  private createKernel2D(kernel: Kernel2D) {
     eval(`
       kernel = function (
         pixelMass,
@@ -112,7 +112,7 @@ export class FieldImage {
     }
   }
 
-  createKernel3D(kernel: Kernel3D) {
+  private createKernel3D(kernel: Kernel3D) {
     eval(`
       kernel = function (
         pixelMass,
@@ -147,7 +147,7 @@ export class FieldImage {
     }
   }
 
-  createKernelImage(kernel: KernelImage) {
+  private createKernelImage(kernel: KernelImage) {
     eval(`
       kernel = function (
         pixelMass,
