@@ -30,13 +30,14 @@ export const Demo4: FC = () => {
     fieldImage.current = new FieldImage(width, height)
 
     fieldImage.current.setUpdateHeight(function () {
+      const radius = Math.min(this.width, this.height) / 4
+      const xCenter = (this.width - 1) / 2
+      const yCenter = (this.height - 1) / 2
+
       if (
-        (Math.abs(this.x - (this.width - 1) / 2) <= 1.5 &&
-          Math.abs(this.y - (this.height - 1) / 2) <
-            Math.min(this.width, this.height) / 4) ||
-        (Math.abs(this.y - (this.height - 1) / 2) <= 1.5 &&
-          Math.abs(this.x - (this.width - 1) / 2) <
-            Math.min(this.width, this.height) / 4)
+        (Math.abs(this.x - xCenter) < 0.9 ||
+          Math.abs(this.y - yCenter) < 0.9) &&
+        Math.sqrt((this.x - xCenter) ** 2 + (this.y - yCenter) ** 2) < radius
       ) {
         return Math.sin(this.frame * (Math.PI / 2.5))
       }

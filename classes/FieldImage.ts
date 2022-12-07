@@ -31,17 +31,16 @@ type KernelImage = (this: {
   height: number
   x: number
   y: number
-  r: number
-  g: number
-  b: number
+  color: (r: number, g?: number, b?: number, a?: number) => void
 }) => void
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 const getFunctionBody = (func: Function) => {
   const funcString = func.toString()
-  return funcString
-    .substring(funcString.indexOf('{') + 1, funcString.lastIndexOf('}'))
-    .replaceAll('this.', '')
+  return funcString.substring(
+    funcString.indexOf('{') + 1,
+    funcString.lastIndexOf('}')
+  )
 }
 
 export class FieldImage {
@@ -82,11 +81,15 @@ export class FieldImage {
         pixelVelocity,
         frame
       ) {
-        const width = this.output.y
-        const height = this.output.x
-        const x = this.thread.y
-        const y = this.thread.x
-        ${getFunctionBody(kernel)}
+        ${getFunctionBody(kernel)
+          .replaceAll('this.pixelMass', 'pixelMass')
+          .replaceAll('this.pixelHeight', 'pixelHeight')
+          .replaceAll('this.pixelVelocity', 'pixelVelocity')
+          .replaceAll('this.frame', 'frame')
+          .replaceAll('this.width', 'this.output.y')
+          .replaceAll('this.height', 'this.output.x')
+          .replaceAll('this.x', 'this.thread.y')
+          .replaceAll('this.y', 'this.thread.x')}
       }
     `)
 
@@ -114,12 +117,16 @@ export class FieldImage {
         pixelVelocity,
         frame
       ) {
-        const width = this.output.z
-        const height = this.output.y
-        const x = this.thread.z
-        const y = this.thread.y
-        const i = this.thread.x
-        ${getFunctionBody(kernel)}
+        ${getFunctionBody(kernel)
+          .replaceAll('this.pixelMass', 'pixelMass')
+          .replaceAll('this.pixelHeight', 'pixelHeight')
+          .replaceAll('this.pixelVelocity', 'pixelVelocity')
+          .replaceAll('this.frame', 'frame')
+          .replaceAll('this.width', 'this.output.z')
+          .replaceAll('this.height', 'this.output.y')
+          .replaceAll('this.x', 'this.thread.z')
+          .replaceAll('this.y', 'this.thread.y')
+          .replaceAll('this.i', 'this.thread.x')}
       }
     `)
 
@@ -146,15 +153,14 @@ export class FieldImage {
         pixelHeight,
         pixelVelocity
       ) {
-        const width = this.output.x
-        const height = this.output.y
-        const x = this.thread.x
-        const y = this.thread.y
-        let r = 0
-        let g = 0
-        let b = 0
-        ${getFunctionBody(kernel)}
-        this.color(r, g, b)
+        ${getFunctionBody(kernel)
+          .replaceAll('this.pixelMass', 'pixelMass')
+          .replaceAll('this.pixelHeight', 'pixelHeight')
+          .replaceAll('this.pixelVelocity', 'pixelVelocity')
+          .replaceAll('this.width', 'this.output.x')
+          .replaceAll('this.height', 'this.output.y')
+          .replaceAll('this.x', 'this.thread.x')
+          .replaceAll('this.y', 'this.thread.y')}
       }
     `)
 
@@ -219,7 +225,7 @@ export class FieldImage {
 
       const count =
         (l > 0 ? 1 : 0) +
-        (this.y > 0 ? 1 : 0) +
+        (t > 0 ? 1 : 0) +
         (r > 0 ? 1 : 0) +
         (b > 0 ? 1 : 0) +
         (l > 0 && t > 0 ? 1 / Math.PI : 0) +
@@ -235,13 +241,16 @@ export class FieldImage {
     }),
 
     getImageByMass: this.createKernelImage(function () {
-      this.r = this.g = this.b = this.pixelMass[this.x][this.y] / 10
+      const c = this.pixelMass[this.x][this.y] / 10
+      this.color(c, c, c)
     }),
 
     getImageByHeight: this.createKernelImage(function () {
-      this.r = Math.abs(this.pixelHeight[this.x][this.y][0])
-      this.g = Math.abs(this.pixelHeight[this.x][this.y][1])
-      this.b = Math.abs(this.pixelHeight[this.x][this.y][2])
+      this.color(
+        Math.abs(this.pixelHeight[this.x][this.y][0]),
+        Math.abs(this.pixelHeight[this.x][this.y][1]),
+        Math.abs(this.pixelHeight[this.x][this.y][2])
+      )
     }),
   }
 

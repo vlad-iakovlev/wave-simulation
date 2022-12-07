@@ -31,37 +31,35 @@ export const Demo3: FC = () => {
 
     fieldImage.current.setUpdateMass(function () {
       if (this.frame === 0) {
+        const xCenter = (this.width - 1) / 2
+        const yCenter = (this.height - 1) / 2
+
         if (
           this.x === 0 ||
           this.y === 0 ||
-          this.x === this.width - 1 ||
-          this.y === this.height - 1 ||
-          Math.abs(this.x - (this.width - 1) / 2) <= 1.5 ||
-          Math.abs(this.y - (this.height - 1) / 2) <= 1.5
+          this.width - this.x === 1 ||
+          this.height - this.y === 1 ||
+          Math.abs(this.x - xCenter) < 0.9 ||
+          Math.abs(this.y - yCenter) < 0.9
         ) {
           return 0
         }
-
-        return 1
       }
 
       return this.pixelMass[this.x][this.y]
     })
 
     fieldImage.current.setUpdateHeight(function () {
-      if (this.frame === 0) {
-        if (
-          (Math.abs(this.x - (this.width - 1) / 2) <= 1.5 &&
-            Math.abs(this.y - (this.height - 1) / 2) <
-              Math.min(this.width, this.height) / 4) ||
-          (Math.abs(this.y - (this.height - 1) / 2) <= 1.5 &&
-            Math.abs(this.x - (this.width - 1) / 2) <
-              Math.min(this.width, this.height) / 4)
-        ) {
-          return 1
-        }
+      const radius = Math.min(this.width, this.height) / 4
+      const xCenter = (this.width - 1) / 2
+      const yCenter = (this.height - 1) / 2
 
-        return 0
+      if (
+        (Math.abs(this.x - xCenter) < 0.9 ||
+          Math.abs(this.y - yCenter) < 0.9) &&
+        Math.sqrt((this.x - xCenter) ** 2 + (this.y - yCenter) ** 2) < radius
+      ) {
+        return 1
       }
 
       return this.pixelHeight[this.x][this.y][this.i]

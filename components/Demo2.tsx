@@ -31,39 +31,37 @@ export const Demo2: FC = () => {
 
     fieldImage.current.setUpdateMass(function () {
       if (this.frame === 0) {
+        const radius = Math.min(this.width, this.height) / 4
+        const xCenter = (this.width - 1) / 2
+        const yCenter = (this.height - 1) / 2
+
         if (
-          this.x ===
-            Math.floor(
-              this.width / 2 - Math.min(this.width, this.height) / 2 - 1
-            ) &&
-          this.y > this.height / 2 - Math.min(this.width, this.height) / 7 &&
-          this.y < this.height / 2 - Math.min(this.width, this.height) / 8
+          this.x === Math.floor(xCenter - radius * (4 / 3)) - 1 &&
+          this.y > yCenter - radius * (2 / 3) &&
+          this.y < yCenter - radius / 2
         ) {
           return 0
         }
 
         if (
-          Math.sqrt(
-            (this.x - (this.width - 1) / 2) ** 2 +
-              (this.y - (this.height - 1) / 2) ** 2
-          ) <
-          Math.min(this.width, this.height) / 4
+          Math.sqrt((this.x - xCenter) ** 2 + (this.y - yCenter) ** 2) < radius
         ) {
           return 1.5
         }
-
-        return 1
       }
 
       return this.pixelMass[this.x][this.y]
     })
 
     fieldImage.current.setUpdateHeight(function () {
+      const radius = Math.min(this.width, this.height) / 4
+      const xCenter = (this.width - 1) / 2
+      const yCenter = (this.height - 1) / 2
+
       if (
-        this.x ===
-          Math.floor(this.width / 2 - Math.min(this.width, this.height) / 2) &&
-        this.y > this.height / 2 - Math.min(this.width, this.height) / 7 &&
-        this.y < this.height / 2 - Math.min(this.width, this.height) / 8
+        this.x === Math.floor(xCenter - radius * (4 / 3)) &&
+        this.y > yCenter - radius * (2 / 3) &&
+        this.y < yCenter - radius / 2
       ) {
         return Math.sin(this.frame * (Math.PI / 4))
       }
