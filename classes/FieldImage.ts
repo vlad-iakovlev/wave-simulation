@@ -39,40 +39,6 @@ type KernelImage = (this: {
   b: number
 }) => void
 
-export const generate2dArray = (
-  iSize: number,
-  jSize: number,
-  value: number
-): number[][] | Texture => {
-  const array: number[][] = []
-  for (let i = 0; i < iSize; i++) {
-    array[i] = []
-    for (let j = 0; j < jSize; j++) {
-      array[i][j] = value
-    }
-  }
-  return array
-}
-
-export const generate3dArray = (
-  iSize: number,
-  jSize: number,
-  kSize: number,
-  value: number
-): number[][][] | Texture => {
-  const array: number[][][] = []
-  for (let i = 0; i < iSize; i++) {
-    array[i] = []
-    for (let j = 0; j < jSize; j++) {
-      array[i][j] = []
-      for (let k = 0; k < kSize; k++) {
-        array[i][j][k] = value
-      }
-    }
-  }
-  return array
-}
-
 // eslint-disable-next-line @typescript-eslint/ban-types
 const getFunctionBody = (func: Function) => {
   const funcString = func.toString()
@@ -83,10 +49,33 @@ const getFunctionBody = (func: Function) => {
 
 export class FieldImage {
   private gpu = new GPU()
-  private pixelMass = generate2dArray(this.width, this.height, 1)
-  private pixelHeight = generate3dArray(this.width, this.height, 3, 0)
-  private pixelAccumulated = generate3dArray(this.width, this.height, 3, 0)
-  private pixelVelocity = generate3dArray(this.width, this.height, 3, 0)
+
+  createTexture2D = this.gpu.createKernel(
+    function (value: number) {
+      return value
+    },
+    {
+      output: [this.height, this.width],
+      pipeline: true,
+      immutable: true,
+    }
+  ) as (value: number) => Texture
+
+  createTexture3D = this.gpu.createKernel(
+    function (value: number) {
+      return value
+    },
+    {
+      output: [3, this.height, this.width],
+      pipeline: true,
+      immutable: true,
+    }
+  ) as (value: number) => Texture
+
+  private pixelMass = this.createTexture2D(1)
+  private pixelHeight = this.createTexture3D(0)
+  private pixelAccumulated = this.createTexture3D(0)
+  private pixelVelocity = this.createTexture3D(0)
   private frame = 0
 
   createKernel2D(kernel: Kernel2D) {
@@ -296,8 +285,7 @@ export class FieldImage {
     key: 'pixelMass' | 'pixelHeight' | 'pixelAccumulated' | 'pixelVelocity',
     newValue: Texture
   ) {
-    const oldValue = this[key]
-    if (!Array.isArray(oldValue)) oldValue.delete()
+    this[key].delete()
     this[key] = newValue
   }
 
