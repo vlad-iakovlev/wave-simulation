@@ -194,21 +194,38 @@ export class FieldImage {
         return 0
       }
 
+      const l = this.x
+      const r = this.width - this.x - 1
+      const t = this.y
+      const b = this.height - this.y - 1
+
       const force =
-        (this.x > 0 ? this.pixelHeight[this.x - 1][this.y][this.i] : 0) +
-        (this.y > 0 ? this.pixelHeight[this.x][this.y - 1][this.i] : 0) +
-        (this.x < this.width - 1
-          ? this.pixelHeight[this.x + 1][this.y][this.i]
+        (l > 0 ? this.pixelHeight[this.x - 1][this.y][this.i] : 0) +
+        (t > 0 ? this.pixelHeight[this.x][this.y - 1][this.i] : 0) +
+        (r > 0 ? this.pixelHeight[this.x + 1][this.y][this.i] : 0) +
+        (b > 0 ? this.pixelHeight[this.x][this.y + 1][this.i] : 0) +
+        (l > 0 && t > 0
+          ? this.pixelHeight[this.x - 1][this.y - 1][this.i] / Math.PI
           : 0) +
-        (this.y < this.height - 1
-          ? this.pixelHeight[this.x][this.y + 1][this.i]
+        (r > 0 && t > 0
+          ? this.pixelHeight[this.x + 1][this.y - 1][this.i] / Math.PI
+          : 0) +
+        (l > 0 && b > 0
+          ? this.pixelHeight[this.x - 1][this.y + 1][this.i] / Math.PI
+          : 0) +
+        (r > 0 && b > 0
+          ? this.pixelHeight[this.x + 1][this.y + 1][this.i] / Math.PI
           : 0)
 
       const count =
-        (this.x > 0 ? 1 : 0) +
+        (l > 0 ? 1 : 0) +
         (this.y > 0 ? 1 : 0) +
-        (this.x < this.width - 1 ? 1 : 0) +
-        (this.y < this.height - 1 ? 1 : 0)
+        (r > 0 ? 1 : 0) +
+        (b > 0 ? 1 : 0) +
+        (l > 0 && t > 0 ? 1 / Math.PI : 0) +
+        (r > 0 && t > 0 ? 1 / Math.PI : 0) +
+        (l > 0 && b > 0 ? 1 / Math.PI : 0) +
+        (r > 0 && b > 0 ? 1 / Math.PI : 0)
 
       return (
         this.pixelVelocity[this.x][this.y][this.i] +
