@@ -32,13 +32,24 @@ export const Demo2: FC = () => {
     fieldImage.current.setUpdateMass(function () {
       if (this.frame === 0) {
         if (
+          this.x ===
+            Math.floor(
+              this.width / 2 - Math.min(this.width, this.height) / 2 - 1
+            ) &&
+          this.y > this.height / 2 - Math.min(this.width, this.height) / 7 &&
+          this.y < this.height / 2 - Math.min(this.width, this.height) / 8
+        ) {
+          return 0
+        }
+
+        if (
           Math.sqrt(
             (this.x - (this.width - 1) / 2) ** 2 +
               (this.y - (this.height - 1) / 2) ** 2
           ) <
           Math.min(this.width, this.height) / 4
         ) {
-          return 1.33
+          return 1.5
         }
 
         return 1
@@ -48,18 +59,13 @@ export const Demo2: FC = () => {
     })
 
     fieldImage.current.setUpdateHeight(function () {
-      if (this.frame === 0) {
-        return 0
-      }
-
       if (
-        this.frame < 300 &&
         this.x ===
-          Math.floor(this.width / 2 - Math.min(this.width, this.height) / 3) &&
-        this.y > this.height / 2 - Math.min(this.width, this.height) / 5 &&
-        this.y < this.height / 2 - Math.min(this.width, this.height) / 7
+          Math.floor(this.width / 2 - Math.min(this.width, this.height) / 2) &&
+        this.y > this.height / 2 - Math.min(this.width, this.height) / 7 &&
+        this.y < this.height / 2 - Math.min(this.width, this.height) / 8
       ) {
-        return Math.sin(this.frame * 0.8)
+        return Math.sin(this.frame * (Math.PI / 4))
       }
 
       return this.pixelHeight[this.x][this.y][this.i]
