@@ -65,7 +65,7 @@ export class FieldImage {
     this.gl.useProgram(program)
 
     const texture = this.helper.createTexture()
-    this.gl.activeTexture(this.gl[`TEXTURE${TEXTURES_INDEXES[textureName]}`])
+    this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[textureName])
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
 
     this.renderToTexture(texture)
@@ -91,7 +91,7 @@ export class FieldImage {
     this.textures.read[textureName] = this.textures.write[textureName]
     this.textures.write[textureName] = oldReadTexture
 
-    this.gl.activeTexture(this.gl[`TEXTURE${TEXTURES_INDEXES[textureName]}`])
+    this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[textureName])
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.read[textureName])
   }
 

@@ -4,7 +4,7 @@ export const TEXTURES_INDEXES = {
   mass: 1,
   height: 2,
   velocity: 3,
-} as const
+}
 
 export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
   init: {
