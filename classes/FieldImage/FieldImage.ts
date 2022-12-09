@@ -40,8 +40,14 @@ export class FieldImage {
 
   private fs = GET_DEFAULT_FRAGMENT_SHADERS()
 
+  private programsCache = new Map<string, WebGLProgram>()
+
   private createProgram(fs: string) {
+    const programFromCache = this.programsCache.get(fs)
+    if (programFromCache) return programFromCache
+
     const program = createProgramFromSources(this.gl, this.vs, fs)
+    this.programsCache.set(fs, program)
 
     const positionLoc = this.gl.getAttribLocation(program, 'a_position')
     const positionBuffer = this.gl.createBuffer()
@@ -124,13 +130,8 @@ export class FieldImage {
   private createReadTexture(textureName: 'mass' | 'height' | 'velocity') {
     const program = this.createProgram(this.fs.init[textureName])
     this.gl.useProgram(program)
-
     const texture = this.createTexture()
-    this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[textureName])
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-
     this.renderToTexture(texture)
-
     return texture
   }
 
@@ -152,40 +153,29 @@ export class FieldImage {
       this.textures.write[textureName],
       this.textures.read[textureName],
     ]
-
-    this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[textureName])
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.read[textureName])
   }
-
-  private programsCache = new Map<string, WebGLProgram>()
 
   private runProgram(
     method: 'update' | 'iterate' | 'draw',
     textureName: 'mass' | 'height' | 'velocity'
   ) {
-    let program = this.programsCache.get(`${method}_${textureName}`)
+    const program = this.createProgram(this.fs[method][textureName])
+    this.gl.useProgram(program)
 
-    if (!program) {
-      program = this.createProgram(this.fs[method][textureName])
-      this.gl.useProgram(program)
-
-      for (const name of ['mass', 'height', 'velocity'] as const) {
-        this.gl.uniform1i(
-          this.gl.getUniformLocation(program, `u_${name}`),
-          TEXTURES_INDEXES[name]
-        )
-      }
-
-      this.gl.uniform2f(
-        this.gl.getUniformLocation(program, 'u_dimensions'),
-        this.width,
-        this.height
+    for (const name of ['mass', 'height', 'velocity'] as const) {
+      this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[name])
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.read[name])
+      this.gl.uniform1i(
+        this.gl.getUniformLocation(program, `u_${name}`),
+        TEXTURES_INDEXES[name]
       )
-
-      this.programsCache.set(`${method}_${textureName}`, program)
-    } else {
-      this.gl.useProgram(program)
     }
+
+    this.gl.uniform2f(
+      this.gl.getUniformLocation(program, 'u_dimensions'),
+      this.width,
+      this.height
+    )
 
     this.gl.uniform1i(
       this.gl.getUniformLocation(program, 'u_frame'),
