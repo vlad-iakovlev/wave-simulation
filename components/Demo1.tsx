@@ -1,60 +1,56 @@
-import { FC, useCallback, useEffect, useRef } from 'react'
-import { FieldImage } from '../classes/FieldImage'
+import { FC, useCallback, useRef } from 'react'
+import {
+  FieldImage,
+  FieldImageUserShaders,
+  getShader,
+} from '../classes/FieldImage'
+import { useRaf } from '../hooks/useRaf'
+import { useResize } from '../hooks/useResize'
 
-export const Demo1: FC = () => {
-  const canvas = useRef<HTMLCanvasElement>(null)
-  const fieldImage = useRef<FieldImage>()
+const userShaders: FieldImageUserShaders = {
+  height: getShader(`
+    vec4 calc() {
+      vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
+      float radius = min(u_dimensions.x, u_dimensions.y) * 0.25;
 
-  const run = useCallback((currentFieldImage: FieldImage) => {
-    if (fieldImage.current === currentFieldImage && canvas.current) {
-      currentFieldImage.iterate()
-      currentFieldImage.draw(canvas.current, 'height')
-      window.requestAnimationFrame(() => run(currentFieldImage))
-    }
-  }, [])
-
-  const init = useCallback(() => {
-    let { width, height } = document.documentElement.getBoundingClientRect()
-    const scale = window.devicePixelRatio
-    width = Math.floor(width * scale)
-    height = Math.floor(height * scale)
-
-    // iOS scroll triggers resize, ignore it
-    if (
-      fieldImage.current?.width === width &&
-      fieldImage.current?.height === height
-    ) {
-      return
-    }
-
-    fieldImage.current = new FieldImage(width, height)
-
-    fieldImage.current.setUpdateHeight(function () {
-      const radius = Math.min(this.width, this.height) / 4
-      const xCenter = (this.width - 1) / 2
-      const yCenter = (this.height - 1) / 2
-
-      if (
-        this.frame === 0 &&
-        Math.sqrt((this.x - xCenter) ** 2 + (this.y - yCenter) ** 2) < radius
-      ) {
-        return 1
+      if (u_frame == 0) {
+        if (sqrt(pow(gl_FragCoord.x - center.x, 2.0) + pow(gl_FragCoord.y - center.y, 2.0)) < radius) {
+          return vec4(1, 1, 1, 0);
+        }
       }
 
-      return this.pixelHeight[this.x][this.y][this.i]
-    })
-
-    run(fieldImage.current)
-  }, [run])
-
-  useEffect(() => {
-    init()
-    window.addEventListener('resize', init)
-
-    return () => {
-      window.removeEventListener('resize', init)
+      return texelFetch(u_height, ivec2(gl_FragCoord.xy), 0);
     }
-  }, [init])
+  `),
+}
 
-  return <canvas className="w-full h-full" ref={canvas} />
+export const Demo1: FC = () => {
+  const root = useRef<HTMLDivElement>(null)
+  const fieldImage = useRef<FieldImage>()
+
+  useRaf(
+    useCallback((fps) => {
+      if (!fieldImage.current) {
+        fieldImage.current = new FieldImage(userShaders)
+
+        while (root.current?.firstChild) {
+          root.current.removeChild(root.current.firstChild)
+        }
+        root.current?.appendChild(fieldImage.current.canvas)
+      }
+
+      fieldImage.current.iterate()
+      // If FPS less then 100 iterate one more time to make animation faster
+      if (fps < 100) fieldImage.current.iterate()
+      fieldImage.current.draw('height')
+    }, [])
+  )
+
+  useResize(
+    useCallback(() => {
+      fieldImage.current = undefined
+    }, [])
+  )
+
+  return <div ref={root} />
 }
