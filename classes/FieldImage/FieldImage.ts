@@ -1,5 +1,6 @@
 import { GET_DEFAULT_FRAGMENT_SHADERS, TEXTURES_INDEXES } from './constants'
 import { createProgramFromSources, getWebGL2Context } from '../../utils/webgl'
+import { FieldImageShaderGroup } from './types'
 
 export interface FieldImageUserShaders {
   mass?: string
@@ -159,7 +160,10 @@ export class FieldImage {
     method: 'update' | 'iterate' | 'draw',
     textureName: 'mass' | 'height' | 'velocity'
   ) {
-    const program = this.createProgram(this.fs[method][textureName])
+    const fs = this.fs[method]?.[textureName]
+    if (!fs) return
+
+    const program = this.createProgram(fs)
     this.gl.useProgram(program)
 
     for (const name of ['mass', 'height', 'velocity'] as const) {
@@ -190,11 +194,8 @@ export class FieldImage {
     }
   }
 
-  constructor(userShaders: FieldImageUserShaders) {
-    for (const name of ['mass', 'height', 'velocity'] as const) {
-      const userShader = userShaders?.[name]
-      if (userShader) this.fs.update[name] = userShader
-    }
+  constructor(updateShaders: FieldImageShaderGroup) {
+    this.fs.update = updateShaders
   }
 
   iterate() {
@@ -208,7 +209,7 @@ export class FieldImage {
     this.frame++
   }
 
-  draw(textureName: 'mass' | 'height' | 'velocity') {
-    this.runProgram('draw', textureName)
+  draw() {
+    this.runProgram('draw', 'height')
   }
 }

@@ -39,7 +39,8 @@ export const Demo4: FC = () => {
       }
 
       fieldImage.current.iterate()
-      fieldImage.current.draw('height')
+      fieldImage.current.iterate()
+      fieldImage.current.draw()
     }, [])
   )
 

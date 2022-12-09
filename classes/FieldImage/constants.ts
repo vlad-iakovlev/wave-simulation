@@ -1,4 +1,5 @@
-import { getDrawShader, getNoopShader, getShader } from './utils'
+import { FieldImageShaderGroup } from './types'
+import { getShader } from './utils'
 
 export const TEXTURES_INDEXES = {
   mass: 1,
@@ -6,7 +7,14 @@ export const TEXTURES_INDEXES = {
   velocity: 3,
 }
 
-export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
+interface Shaders {
+  init: Required<FieldImageShaderGroup>
+  update?: FieldImageShaderGroup
+  iterate?: FieldImageShaderGroup
+  draw?: FieldImageShaderGroup
+}
+
+export const GET_DEFAULT_FRAGMENT_SHADERS = (): Shaders => ({
   init: {
     mass: `#version 300 es
       precision highp float;
@@ -33,15 +41,7 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
     `,
   },
 
-  update: {
-    mass: getNoopShader('mass'),
-    height: getNoopShader('height'),
-    velocity: getNoopShader('velocity'),
-  },
-
   iterate: {
-    mass: getNoopShader('mass'),
-
     height: getShader(`
       vec4 calc() {
         ivec2 texelCoord = ivec2(gl_FragCoord.xy);
@@ -80,8 +80,11 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
   },
 
   draw: {
-    mass: getDrawShader('mass'),
-    height: getDrawShader('height'),
-    velocity: getDrawShader('velocity'),
+    height: getShader(`
+      vec4 calc() {
+        vec4 value = abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0));
+        return vec4(value.xyz, 1);
+      }
+    `),
   },
 })

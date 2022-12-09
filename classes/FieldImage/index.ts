@@ -1,2 +1,3 @@
 export * from './FieldImage'
-export { getShader } from './utils'
+export * from './types'
+export * from './utils'

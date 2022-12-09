@@ -18,20 +18,3 @@ export const getShader = (code: string) => {
     }
   `
 }
-
-export const getNoopShader = (textureName: 'mass' | 'height' | 'velocity') => {
-  return getShader(`
-    vec4 calc() {
-      return texelFetch(u_${textureName}, ivec2(gl_FragCoord.xy), 0);
-    }
-  `)
-}
-
-export const getDrawShader = (textureName: 'mass' | 'height' | 'velocity') => {
-  return getShader(`
-    vec4 calc() {
-      vec4 value = abs(texelFetch(u_${textureName}, ivec2(gl_FragCoord.xy), 0));
-      return vec4(value.xyz, 1);
-    }
-  `)
-}
