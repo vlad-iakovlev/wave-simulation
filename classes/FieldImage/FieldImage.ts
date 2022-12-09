@@ -1,5 +1,5 @@
 import { GET_DEFAULT_FRAGMENT_SHADERS, TEXTURES_INDEXES } from './constants'
-import { GLHelper } from '../GLHelper'
+import { createProgramFromSources, getWebGL2Context } from '../../utils/webgl'
 
 export interface FieldImageUserShaders {
   mass?: string
@@ -8,10 +8,29 @@ export interface FieldImageUserShaders {
 }
 
 export class FieldImage {
-  private helper = new GLHelper()
-  readonly canvas = this.helper.canvas
-  private gl = this.helper.gl
-  private fb = this.helper.fb
+  private cssWidth = window.innerWidth
+  private cssHeight = window.innerHeight
+  private scale = window.devicePixelRatio
+  private width = Math.floor(this.cssWidth * this.scale)
+  private height = Math.floor(this.cssHeight * this.scale)
+
+  readonly canvas = (() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = this.width
+    canvas.height = this.height
+    canvas.style.width = `${this.cssWidth}px`
+    canvas.style.height = `${this.cssHeight}px`
+    return canvas
+  })()
+
+  private gl = (() => {
+    const gl = getWebGL2Context(this.canvas)
+    gl.viewport(0, 0, this.width, this.height)
+    return gl
+  })()
+
+  private fb = this.gl.createFramebuffer()
+
   private programsCache = new Map<string, WebGLProgram>()
   private frame = 0
 
@@ -24,8 +43,38 @@ export class FieldImage {
 
   private fs = GET_DEFAULT_FRAGMENT_SHADERS()
 
+  createTexture() {
+    const texture = this.gl.createTexture()
+    this.gl.activeTexture(this.gl.TEXTURE0)
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA32F,
+      this.width,
+      this.height,
+      0,
+      this.gl.RGBA,
+      this.gl.FLOAT,
+      null
+    )
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MIN_FILTER,
+      this.gl.NEAREST
+    )
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_MAG_FILTER,
+      this.gl.NEAREST
+    )
+
+    return texture
+  }
+
   private createProgram(fs: string) {
-    const program = this.helper.createProgramFromSources(this.vs, fs)
+    const program = createProgramFromSources(this.gl, this.vs, fs)
 
     const positionLoc = this.gl.getAttribLocation(program, 'a_position')
     const positionBuffer = this.gl.createBuffer()
@@ -64,7 +113,7 @@ export class FieldImage {
     const program = this.createProgram(this.fs.init[textureName])
     this.gl.useProgram(program)
 
-    const texture = this.helper.createTexture()
+    const texture = this.createTexture()
     this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[textureName])
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
 
@@ -80,9 +129,9 @@ export class FieldImage {
       velocity: this.createReadTexture('velocity'),
     },
     write: {
-      mass: this.helper.createTexture(),
-      height: this.helper.createTexture(),
-      velocity: this.helper.createTexture(),
+      mass: this.createTexture(),
+      height: this.createTexture(),
+      velocity: this.createTexture(),
     },
   }
 
@@ -114,8 +163,8 @@ export class FieldImage {
 
       this.gl.uniform2f(
         this.gl.getUniformLocation(program, 'u_dimensions'),
-        this.helper.width,
-        this.helper.height
+        this.width,
+        this.height
       )
 
       this.programsCache.set(`${method}_${textureName}`, program)
