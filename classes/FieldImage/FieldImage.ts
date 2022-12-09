@@ -29,9 +29,6 @@ export class FieldImage {
     return gl
   })()
 
-  private fb = this.gl.createFramebuffer()
-
-  private programsCache = new Map<string, WebGLProgram>()
   private frame = 0
 
   private vs = `#version 300 es
@@ -43,8 +40,59 @@ export class FieldImage {
 
   private fs = GET_DEFAULT_FRAGMENT_SHADERS()
 
+  private createProgram(fs: string) {
+    const program = createProgramFromSources(this.gl, this.vs, fs)
+
+    const positionLoc = this.gl.getAttribLocation(program, 'a_position')
+    const positionBuffer = this.gl.createBuffer()
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer)
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+      this.gl.STATIC_DRAW
+    )
+    this.gl.enableVertexAttribArray(positionLoc)
+    this.gl.vertexAttribPointer(positionLoc, 2, this.gl.FLOAT, false, 0, 0)
+
+    return program
+  }
+
+  private fbCache = new Map<WebGLTexture, WebGLFramebuffer>()
+
+  private getTextureFB(texture: WebGLTexture) {
+    const fbFromCache = this.fbCache.get(texture)
+    if (fbFromCache) return fbFromCache
+
+    const fb = this.gl.createFramebuffer()
+    if (!fb) throw new Error('Cannot create framebuffer')
+    this.fbCache.set(texture, fb)
+
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb)
+    this.gl.framebufferTexture2D(
+      this.gl.FRAMEBUFFER,
+      this.gl.COLOR_ATTACHMENT0,
+      this.gl.TEXTURE_2D,
+      texture,
+      0
+    )
+
+    return fb
+  }
+
+  private renderToTexture(texture: WebGLTexture) {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.getTextureFB(texture))
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+  }
+
+  private renderToCanvas() {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+  }
+
   createTexture() {
     const texture = this.gl.createTexture()
+    if (!texture) throw new Error('Could not create texture')
+
     this.gl.activeTexture(this.gl.TEXTURE0)
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
 
@@ -71,42 +119,6 @@ export class FieldImage {
     )
 
     return texture
-  }
-
-  private createProgram(fs: string) {
-    const program = createProgramFromSources(this.gl, this.vs, fs)
-
-    const positionLoc = this.gl.getAttribLocation(program, 'a_position')
-    const positionBuffer = this.gl.createBuffer()
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer)
-    this.gl.bufferData(
-      this.gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-      this.gl.STATIC_DRAW
-    )
-    this.gl.enableVertexAttribArray(positionLoc)
-    this.gl.vertexAttribPointer(positionLoc, 2, this.gl.FLOAT, false, 0, 0)
-
-    return program
-  }
-
-  private renderToTexture(texture: WebGLTexture | null) {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fb)
-
-    this.gl.framebufferTexture2D(
-      this.gl.FRAMEBUFFER,
-      this.gl.COLOR_ATTACHMENT0,
-      this.gl.TEXTURE_2D,
-      texture,
-      0
-    )
-
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
-  }
-
-  private renderToCanvas() {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
   }
 
   private createReadTexture(textureName: 'mass' | 'height' | 'velocity') {
@@ -136,13 +148,16 @@ export class FieldImage {
   }
 
   private swapTextures(textureName: 'mass' | 'height' | 'velocity') {
-    const oldReadTexture = this.textures.read[textureName]
-    this.textures.read[textureName] = this.textures.write[textureName]
-    this.textures.write[textureName] = oldReadTexture
+    ;[this.textures.read[textureName], this.textures.write[textureName]] = [
+      this.textures.write[textureName],
+      this.textures.read[textureName],
+    ]
 
     this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[textureName])
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.read[textureName])
   }
+
+  private programsCache = new Map<string, WebGLProgram>()
 
   private runProgram(
     method: 'update' | 'iterate' | 'draw',
