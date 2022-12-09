@@ -93,16 +93,4 @@ export class GLHelper {
 
     return texture
   }
-
-  bindFBAndTexture(texture: WebGLTexture | null) {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fb)
-
-    this.gl.framebufferTexture2D(
-      this.gl.FRAMEBUFFER,
-      this.gl.COLOR_ATTACHMENT0,
-      this.gl.TEXTURE_2D,
-      texture,
-      0
-    )
-  }
 }

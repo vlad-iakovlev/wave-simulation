@@ -12,13 +12,10 @@ const userShaders: FieldImageUserShaders = {
     vec4 calc() {
       vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
       float radius = min(u_dimensions.x, u_dimensions.y) * 0.25;
+      vec2 diff = gl_FragCoord.xy - center;
 
-      if (
-        (abs(gl_FragCoord.x - center.x) < 0.9 || abs(gl_FragCoord.y - center.y) < 0.9) &&
-        sqrt(pow(gl_FragCoord.x - center.x, 2.0) + pow(gl_FragCoord.y - center.y, 2.0)) < radius
-      ) {
-        float value = sin(float(u_frame) * M_PI * 0.4);
-        return vec4(value, value, value, 0);
+      if ((abs(diff.x) < 0.9 || abs(diff.y) < 0.9) && length(diff) < radius) {
+        return vec4(sin(float(u_frame) * M_PI * 0.4));
       }
 
       return texelFetch(u_height, ivec2(gl_FragCoord.xy), 0);

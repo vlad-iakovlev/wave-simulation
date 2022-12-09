@@ -12,7 +12,7 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
       precision highp float;
       out vec4 o_result;
       void main() {
-        o_result = vec4(1, 0, 0, 0);
+        o_result = vec4(1);
       }
     `,
 
@@ -20,7 +20,7 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
       precision highp float;
       out vec4 o_result;
       void main() {
-        o_result = vec4(0, 0, 0, 0);
+        o_result = vec4(0);
       }
     `,
 
@@ -28,7 +28,7 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
       precision highp float;
       out vec4 o_result;
       void main() {
-        o_result = vec4(0, 0, 0, 0);
+        o_result = vec4(0);
       }
     `,
   },
@@ -50,68 +50,31 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
     `),
 
     velocity: getShader(`
-      const float FORCE_SIDE = 1.0;
-      const float FORCE_ANGLE = 0.3;
       const vec4 MASS_CORRECTION = vec4(0.98, 1, 1.02, 0);
 
       vec4 calc() {
         ivec2 texelCoord = ivec2(gl_FragCoord.xy);
-        float mass = texelFetch(u_mass, texelCoord, 0).x;
 
-        if (mass < 0.001) {
-          return vec4(0, 0, 0, 0);
-        }
+        vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_dimensions.xy - gl_FragCoord.xy));
+        vec4 angles = sides * sides.yzwx * 0.3;
 
-        float left = gl_FragCoord.x;
-        float top = gl_FragCoord.y;
-        float right = u_dimensions.x - gl_FragCoord.x;
-        float bottom = u_dimensions.y - gl_FragCoord.y;
+        vec4 force =
+          sides.x * texelFetch(u_height, texelCoord + ivec2(-1, 0), 0) +
+          sides.y * texelFetch(u_height, texelCoord + ivec2(0, -1), 0) +
+          sides.z * texelFetch(u_height, texelCoord + ivec2(1, 0), 0) +
+          sides.w * texelFetch(u_height, texelCoord + ivec2(0, 1), 0) +
+          angles.x * texelFetch(u_height, texelCoord + ivec2(-1, -1), 0) +
+          angles.y * texelFetch(u_height, texelCoord + ivec2(1, -1), 0) +
+          angles.z * texelFetch(u_height, texelCoord + ivec2(1, 1), 0) +
+          angles.w * texelFetch(u_height, texelCoord + ivec2(-1, 1), 0);
 
-        vec4 force = vec4(0, 0, 0, 0);
-        float count = 0.0;
-
-        if (left > 1.0) {
-          force += texelFetch(u_height, texelCoord + ivec2(-1, 0), 0) * FORCE_SIDE;
-          count += FORCE_SIDE;
-        }
-
-        if (right > 1.0) {
-          force += texelFetch(u_height, texelCoord + ivec2(1, 0), 0) * FORCE_SIDE;
-          count += FORCE_SIDE;
-        }
-
-        if (top > 1.0) {
-          force += texelFetch(u_height, texelCoord + ivec2(0, -1), 0) * FORCE_SIDE;
-          count += FORCE_SIDE;
-        }
-
-        if (bottom > 1.0) {
-          force += texelFetch(u_height, texelCoord + ivec2(0, 1), 0) * FORCE_SIDE;
-          count += FORCE_SIDE;
-        }
-
-        if (left > 1.0 && top > 1.0) {
-          force += texelFetch(u_height, texelCoord + ivec2(-1, -1), 0) * FORCE_ANGLE;
-          count += FORCE_ANGLE;
-        }
-
-        if (right > 1.0 && top > 1.0) {
-          force += texelFetch(u_height, texelCoord + ivec2(1, -1), 0) * FORCE_ANGLE;
-          count += FORCE_ANGLE;
-        }
-
-        if (left > 1.0 && bottom > 1.0) {
-          force += texelFetch(u_height, texelCoord + ivec2(-1, 1), 0) * FORCE_ANGLE;
-          count += FORCE_ANGLE;
-        }
-
-        if (right > 1.0 && bottom > 1.0) {
-          force += texelFetch(u_height, texelCoord + ivec2(1, 1), 0) * FORCE_ANGLE;
-          count += FORCE_ANGLE;
-        }
+        float count =
+          sides.x + sides.y + sides.z + sides.w +
+          angles.x + angles.y + angles.z + angles.w;
 
         return texelFetch(u_velocity, texelCoord, 0) +
-          (force * (1.0 / count) - texelFetch(u_height, texelCoord, 0)) * (MASS_CORRECTION * (1.0 / mass));
+          (force * (1.0 / count) - texelFetch(u_height, texelCoord, 0)) *
+          (MASS_CORRECTION * texelFetch(u_mass, texelCoord, 0).x);
       }
     `),
   },

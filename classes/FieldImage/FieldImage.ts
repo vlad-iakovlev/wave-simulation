@@ -41,7 +41,22 @@ export class FieldImage {
     return program
   }
 
-  private execProgram() {
+  private renderToTexture(texture: WebGLTexture | null) {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fb)
+
+    this.gl.framebufferTexture2D(
+      this.gl.FRAMEBUFFER,
+      this.gl.COLOR_ATTACHMENT0,
+      this.gl.TEXTURE_2D,
+      texture,
+      0
+    )
+
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+  }
+
+  private renderToCanvas() {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
   }
 
@@ -53,8 +68,7 @@ export class FieldImage {
     this.gl.activeTexture(this.gl[`TEXTURE${TEXTURES_INDEXES[textureName]}`])
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
 
-    this.helper.bindFBAndTexture(texture)
-    this.execProgram()
+    this.renderToTexture(texture)
 
     return texture
   }
@@ -115,11 +129,9 @@ export class FieldImage {
     )
 
     if (method === 'draw') {
-      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
-      this.execProgram()
+      this.renderToCanvas()
     } else {
-      this.helper.bindFBAndTexture(this.textures.write[textureName])
-      this.execProgram()
+      this.renderToTexture(this.textures.write[textureName])
       this.swapTextures(textureName)
     }
   }

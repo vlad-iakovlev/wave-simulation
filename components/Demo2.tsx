@@ -19,11 +19,11 @@ const userShaders: FieldImageUserShaders = {
           gl_FragCoord.y < center.y + radius * 0.7 &&
           gl_FragCoord.y > center.y + radius * 0.5
         ) {
-          return vec4(0, 0, 0, 0);
+          return vec4(0);
         }
 
-        if (sqrt(pow(gl_FragCoord.x - center.x, 2.0) + pow(gl_FragCoord.y - center.y, 2.0)) < radius) {
-          return vec4(1.5, 0, 0, 0);
+        if (length(gl_FragCoord.xy - center) < radius) {
+          return vec4(0.7);
         }
       }
 
@@ -41,8 +41,7 @@ const userShaders: FieldImageUserShaders = {
         gl_FragCoord.y < center.y + radius * 0.7 &&
         gl_FragCoord.y > center.y + radius * 0.5
       ) {
-        float value = sin(float(u_frame) * M_PI * 0.25);
-        return vec4(value, value, value, 0);
+        return vec4(sin(float(u_frame) * M_PI * 0.25));
       }
 
       return texelFetch(u_height, ivec2(gl_FragCoord.xy), 0);
