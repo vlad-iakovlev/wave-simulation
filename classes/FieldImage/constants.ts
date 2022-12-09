@@ -64,13 +64,13 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
 
         vec4 force =
           angles.x * texelFetch(u_height, texelCoord + ivec2(-1, -1), 0) +
-           sides.y * texelFetch(u_height, texelCoord + ivec2( 0, -1), 0) +
+          sides.y  * texelFetch(u_height, texelCoord + ivec2( 0, -1), 0) +
           angles.y * texelFetch(u_height, texelCoord + ivec2( 1, -1), 0) +
-           sides.x * texelFetch(u_height, texelCoord + ivec2(-1,  0), 0) +
+          sides.x  * texelFetch(u_height, texelCoord + ivec2(-1,  0), 0) +
           -1.0     * texelFetch(u_height, texelCoord                , 0) +
-           sides.z * texelFetch(u_height, texelCoord + ivec2( 1,  0), 0) +
+          sides.z  * texelFetch(u_height, texelCoord + ivec2( 1,  0), 0) +
           angles.w * texelFetch(u_height, texelCoord + ivec2(-1,  1), 0) +
-           sides.w * texelFetch(u_height, texelCoord + ivec2( 0,  1), 0) +
+          sides.w  * texelFetch(u_height, texelCoord + ivec2( 0,  1), 0) +
           angles.z * texelFetch(u_height, texelCoord + ivec2( 1,  1), 0);
 
         vec4 mass = MASS_CORRECTION * texelFetch(u_mass, texelCoord, 0).x;
