@@ -58,23 +58,23 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
         vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_dimensions.xy - gl_FragCoord.xy));
         vec4 angles = sides * sides.yzwx * 0.3;
 
+        float weight = 1.0 / (dot(sides, vec4(1)) + dot(angles, vec4(1)));
+        sides *= weight;
+        angles *= weight;
+
         vec4 force =
-          sides.x * texelFetch(u_height, texelCoord + ivec2(-1, 0), 0) +
-          sides.y * texelFetch(u_height, texelCoord + ivec2(0, -1), 0) +
-          sides.z * texelFetch(u_height, texelCoord + ivec2(1, 0), 0) +
-          sides.w * texelFetch(u_height, texelCoord + ivec2(0, 1), 0) +
           angles.x * texelFetch(u_height, texelCoord + ivec2(-1, -1), 0) +
-          angles.y * texelFetch(u_height, texelCoord + ivec2(1, -1), 0) +
-          angles.z * texelFetch(u_height, texelCoord + ivec2(1, 1), 0) +
-          angles.w * texelFetch(u_height, texelCoord + ivec2(-1, 1), 0);
+           sides.y * texelFetch(u_height, texelCoord + ivec2( 0, -1), 0) +
+          angles.y * texelFetch(u_height, texelCoord + ivec2( 1, -1), 0) +
+           sides.x * texelFetch(u_height, texelCoord + ivec2(-1,  0), 0) +
+          -1.0     * texelFetch(u_height, texelCoord                , 0) +
+           sides.z * texelFetch(u_height, texelCoord + ivec2( 1,  0), 0) +
+          angles.w * texelFetch(u_height, texelCoord + ivec2(-1,  1), 0) +
+           sides.w * texelFetch(u_height, texelCoord + ivec2( 0,  1), 0) +
+          angles.z * texelFetch(u_height, texelCoord + ivec2( 1,  1), 0);
 
-        float count =
-          sides.x + sides.y + sides.z + sides.w +
-          angles.x + angles.y + angles.z + angles.w;
-
-        return texelFetch(u_velocity, texelCoord, 0) +
-          (force * (1.0 / count) - texelFetch(u_height, texelCoord, 0)) *
-          (MASS_CORRECTION * texelFetch(u_mass, texelCoord, 0).x);
+        vec4 mass = MASS_CORRECTION * texelFetch(u_mass, texelCoord, 0).x;
+        return texelFetch(u_velocity, texelCoord, 0) + force * mass;
       }
     `),
   },
