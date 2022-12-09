@@ -29,7 +29,7 @@ export const Demo1: FC = () => {
   const fieldImage = useRef<FieldImage>()
 
   useRaf(
-    useCallback((fps) => {
+    useCallback(() => {
       if (!fieldImage.current) {
         fieldImage.current = new FieldImage(userShaders)
 
@@ -40,8 +40,6 @@ export const Demo1: FC = () => {
       }
 
       fieldImage.current.iterate()
-      // If FPS less then 100 iterate one more time to make animation faster
-      if (fps < 100) fieldImage.current.iterate()
       fieldImage.current.draw('height')
     }, [])
   )
