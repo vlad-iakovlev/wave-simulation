@@ -24,7 +24,7 @@ const initShaders: FieldImageShaders = {
       vec2 diff = (gl_FragCoord.xy - center + vec2(radius * 6.0, -radius * 3.0)) / radius;
 
       if (length(diff) < 1.0) {
-        return vec4(cos(diff.x * 5.0 * M_PI) * (1.0 - length(diff)));
+        return vec4(cos(diff.x * 5.0 * M_PI) * (1.0 - length(diff)) * 2.0);
       }
 
       return vec4(0);
