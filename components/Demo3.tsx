@@ -1,31 +1,25 @@
 import { FC, useCallback, useRef } from 'react'
-import {
-  FieldImage,
-  FieldImageUserShaders,
-  getShader,
-} from '../classes/FieldImage'
+import { FieldImage, FieldImageShaders, getShader } from '../classes/FieldImage'
 import { useRaf } from '../hooks/useRaf'
 import { useResize } from '../hooks/useResize'
 
-const userShaders: FieldImageUserShaders = {
+const initShaders: FieldImageShaders = {
   mass: getShader(`
     vec4 calc() {
-      if (u_frame == 0) {
-        vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
+      vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
 
-        if (
-          gl_FragCoord.x < 1.0 ||
-          gl_FragCoord.y < 1.0 ||
-          u_dimensions.x - gl_FragCoord.x < 1.0 ||
-          u_dimensions.y - gl_FragCoord.y < 1.0 ||
-          abs(gl_FragCoord.x - center.x) < 0.9 ||
-          abs(gl_FragCoord.y - center.y) < 0.9
-        ) {
-          return vec4(0);
-        }
+      if (
+        gl_FragCoord.x < 1.0 ||
+        gl_FragCoord.y < 1.0 ||
+        u_dimensions.x - gl_FragCoord.x < 1.0 ||
+        u_dimensions.y - gl_FragCoord.y < 1.0 ||
+        abs(gl_FragCoord.x - center.x) < 0.9 ||
+        abs(gl_FragCoord.y - center.y) < 0.9
+      ) {
+        return vec4(0);
       }
 
-      return texelFetch(u_mass, ivec2(gl_FragCoord.xy), 0);
+      return vec4(1);
     }
   `),
 
@@ -39,7 +33,7 @@ const userShaders: FieldImageUserShaders = {
         return vec4(1);
       }
 
-      return texelFetch(u_height, ivec2(gl_FragCoord.xy), 0);
+      return vec4(0);
     }
   `),
 }
@@ -51,7 +45,7 @@ export const Demo3: FC = () => {
   useRaf(
     useCallback(() => {
       if (!fieldImage.current) {
-        fieldImage.current = new FieldImage(userShaders)
+        fieldImage.current = new FieldImage(initShaders)
 
         while (root.current?.firstChild) {
           root.current.removeChild(root.current.firstChild)
@@ -61,7 +55,7 @@ export const Demo3: FC = () => {
 
       fieldImage.current.iterate()
       fieldImage.current.iterate()
-      fieldImage.current.draw()
+      fieldImage.current.draw('height')
     }, [])
   )
 

@@ -1,50 +1,33 @@
 import { FC, useCallback, useRef } from 'react'
-import {
-  FieldImage,
-  FieldImageUserShaders,
-  getShader,
-} from '../classes/FieldImage'
+import { FieldImage, FieldImageShaders, getShader } from '../classes/FieldImage'
 import { useRaf } from '../hooks/useRaf'
 import { useResize } from '../hooks/useResize'
 
-const userShaders: FieldImageUserShaders = {
+const initShaders: FieldImageShaders = {
   mass: getShader(`
     vec4 calc() {
-      if (u_frame == 0) {
-        vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
-        float radius = min(u_dimensions.x, u_dimensions.y) * 0.25;
+      vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
+      float radius = min(u_dimensions.x, u_dimensions.y) * 0.25;
 
-        if (
-          abs(gl_FragCoord.x - floor(center.x - radius * 1.3) + 1.5) < 0.001 &&
-          gl_FragCoord.y < center.y + radius * 0.7 &&
-          gl_FragCoord.y > center.y + radius * 0.5
-        ) {
-          return vec4(0);
-        }
-
-        if (length(gl_FragCoord.xy - center) < radius) {
-          return vec4(0.7);
-        }
+      if (length(gl_FragCoord.xy - center) < radius) {
+        return vec4(0.7);
       }
 
-      return texelFetch(u_mass, ivec2(gl_FragCoord.xy), 0);
+      return vec4(1);
     }
   `),
 
   height: getShader(`
     vec4 calc() {
       vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
-      float radius = min(u_dimensions.x, u_dimensions.y) * 0.25;
+      float radius = min(u_dimensions.x, u_dimensions.y) * 0.05;
+      vec2 diff = (gl_FragCoord.xy - center + vec2(radius * 6.0, -radius * 3.0)) / radius;
 
-      if (
-        abs(gl_FragCoord.x - floor(center.x - radius * 1.3) + 0.5) < 0.001 &&
-        gl_FragCoord.y < center.y + radius * 0.7 &&
-        gl_FragCoord.y > center.y + radius * 0.5
-      ) {
-        return vec4(sin(float(u_frame) * M_PI * 0.25));
+      if (length(diff) < 1.0) {
+        return vec4(cos(diff.x * 5.0 * M_PI) * (1.0 - length(diff)));
       }
 
-      return texelFetch(u_height, ivec2(gl_FragCoord.xy), 0);
+      return vec4(0);
     }
   `),
 }
@@ -56,7 +39,7 @@ export const Demo2: FC = () => {
   useRaf(
     useCallback(() => {
       if (!fieldImage.current) {
-        fieldImage.current = new FieldImage(userShaders)
+        fieldImage.current = new FieldImage(initShaders)
 
         while (root.current?.firstChild) {
           root.current.removeChild(root.current.firstChild)
@@ -66,7 +49,7 @@ export const Demo2: FC = () => {
 
       fieldImage.current.iterate()
       fieldImage.current.iterate()
-      fieldImage.current.draw()
+      fieldImage.current.draw('height')
     }, [])
   )
 

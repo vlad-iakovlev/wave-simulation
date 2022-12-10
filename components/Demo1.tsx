@@ -1,23 +1,19 @@
 import { FC, useCallback, useRef } from 'react'
-import {
-  FieldImage,
-  FieldImageUserShaders,
-  getShader,
-} from '../classes/FieldImage'
+import { FieldImage, FieldImageShaders, getShader } from '../classes/FieldImage'
 import { useRaf } from '../hooks/useRaf'
 import { useResize } from '../hooks/useResize'
 
-const userShaders: FieldImageUserShaders = {
+const initShaders: FieldImageShaders = {
   height: getShader(`
     vec4 calc() {
       vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
       float radius = min(u_dimensions.x, u_dimensions.y) * 0.25;
 
-      float firstFrame = 1.0 - step(1.0, float(u_frame));
-      float isCircle = 1.0 - step(radius, length(gl_FragCoord.xy - center));
+      if (length(gl_FragCoord.xy - center) < radius) {
+        return vec4(1);
+      }
 
-      return texelFetch(u_height, ivec2(gl_FragCoord.xy), 0) +
-        vec4(firstFrame * isCircle);
+      return vec4(0);
     }
   `),
 }
@@ -29,7 +25,7 @@ export const Demo1: FC = () => {
   useRaf(
     useCallback(() => {
       if (!fieldImage.current) {
-        fieldImage.current = new FieldImage(userShaders)
+        fieldImage.current = new FieldImage(initShaders)
 
         while (root.current?.firstChild) {
           root.current.removeChild(root.current.firstChild)
@@ -39,7 +35,7 @@ export const Demo1: FC = () => {
 
       fieldImage.current.iterate()
       fieldImage.current.iterate()
-      fieldImage.current.draw()
+      fieldImage.current.draw('height')
     }, [])
   )
 

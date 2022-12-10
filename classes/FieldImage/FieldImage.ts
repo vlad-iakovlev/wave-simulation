@@ -1,12 +1,6 @@
 import { GET_DEFAULT_FRAGMENT_SHADERS, TEXTURES_INDEXES } from './constants'
 import { createProgramFromSources, getWebGL2Context } from '../../utils/webgl'
-import { FieldImageShaderGroup } from './types'
-
-export interface FieldImageUserShaders {
-  mass?: string
-  height?: string
-  velocity?: string
-}
+import { FieldImageShaders } from './types'
 
 export class FieldImage {
   private cssWidth = window.innerWidth
@@ -30,8 +24,6 @@ export class FieldImage {
     return gl
   })()
 
-  private frame = 0
-
   private vs = `#version 300 es
     in vec4 a_position;
     void main() {
@@ -43,12 +35,16 @@ export class FieldImage {
 
   private programsCache = new Map<string, WebGLProgram>()
 
-  private createProgram(fs: string) {
+  private createAndUseProgram(fs: string) {
     const programFromCache = this.programsCache.get(fs)
-    if (programFromCache) return programFromCache
+    if (programFromCache) {
+      this.gl.useProgram(programFromCache)
+      return programFromCache
+    }
 
     const program = createProgramFromSources(this.gl, this.vs, fs)
     this.programsCache.set(fs, program)
+    this.gl.useProgram(program)
 
     const positionLoc = this.gl.getAttribLocation(program, 'a_position')
     const positionBuffer = this.gl.createBuffer()
@@ -61,14 +57,23 @@ export class FieldImage {
     this.gl.enableVertexAttribArray(positionLoc)
     this.gl.vertexAttribPointer(positionLoc, 2, this.gl.FLOAT, false, 0, 0)
 
+    this.gl.uniform2f(
+      this.gl.getUniformLocation(program, 'u_dimensions'),
+      this.width,
+      this.height
+    )
+
     return program
   }
 
   private fbCache = new Map<WebGLTexture, WebGLFramebuffer>()
 
-  private getTextureFB(texture: WebGLTexture) {
+  private createAndUseTextureFB(texture: WebGLTexture) {
     const fbFromCache = this.fbCache.get(texture)
-    if (fbFromCache) return fbFromCache
+    if (fbFromCache) {
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbFromCache)
+      return fbFromCache
+    }
 
     const fb = this.gl.createFramebuffer()
     if (!fb) throw new Error('Cannot create framebuffer')
@@ -87,7 +92,7 @@ export class FieldImage {
   }
 
   private renderToTexture(texture: WebGLTexture) {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.getTextureFB(texture))
+    this.createAndUseTextureFB(texture)
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
   }
 
@@ -128,25 +133,24 @@ export class FieldImage {
     return texture
   }
 
-  private createReadTexture(textureName: 'mass' | 'height' | 'velocity') {
-    const program = this.createProgram(this.fs.init[textureName])
-    this.gl.useProgram(program)
-    const texture = this.createTexture()
-    this.renderToTexture(texture)
-    return texture
-  }
-
   private textures = {
     read: {
-      mass: this.createReadTexture('mass'),
-      height: this.createReadTexture('height'),
-      velocity: this.createReadTexture('velocity'),
+      mass: this.createTexture(),
+      height: this.createTexture(),
+      velocity: this.createTexture(),
     },
     write: {
       mass: this.createTexture(),
       height: this.createTexture(),
       velocity: this.createTexture(),
     },
+  }
+
+  private initTextures(fs: Required<FieldImageShaders>) {
+    for (const textureName of ['mass', 'height', 'velocity'] as const) {
+      this.createAndUseProgram(fs[textureName])
+      this.renderToTexture(this.textures.read[textureName])
+    }
   }
 
   private swapTextures(textureName: 'mass' | 'height' | 'velocity') {
@@ -157,14 +161,10 @@ export class FieldImage {
   }
 
   private runProgram(
-    method: 'update' | 'iterate' | 'draw',
+    method: 'iterate' | 'draw',
     textureName: 'mass' | 'height' | 'velocity'
   ) {
-    const fs = this.fs[method]?.[textureName]
-    if (!fs) return
-
-    const program = this.createProgram(fs)
-    this.gl.useProgram(program)
+    const program = this.createAndUseProgram(this.fs[method][textureName])
 
     for (const name of ['mass', 'height', 'velocity'] as const) {
       this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[name])
@@ -175,17 +175,6 @@ export class FieldImage {
       )
     }
 
-    this.gl.uniform2f(
-      this.gl.getUniformLocation(program, 'u_dimensions'),
-      this.width,
-      this.height
-    )
-
-    this.gl.uniform1i(
-      this.gl.getUniformLocation(program, 'u_frame'),
-      this.frame
-    )
-
     if (method === 'draw') {
       this.renderToCanvas()
     } else {
@@ -194,22 +183,16 @@ export class FieldImage {
     }
   }
 
-  constructor(updateShaders: FieldImageShaderGroup) {
-    this.fs.update = updateShaders
+  constructor(initShaders: FieldImageShaders) {
+    this.initTextures({ ...this.fs.init, ...initShaders })
   }
 
   iterate() {
-    this.runProgram('update', 'mass')
-    this.runProgram('update', 'height')
-    this.runProgram('update', 'velocity')
-
     this.runProgram('iterate', 'height')
     this.runProgram('iterate', 'velocity')
-
-    this.frame++
   }
 
-  draw() {
-    this.runProgram('draw', 'height')
+  draw(textureName: 'mass' | 'height' | 'velocity') {
+    this.runProgram('draw', textureName)
   }
 }

@@ -4,17 +4,34 @@ export const getShader = (code: string) => {
 
     const float M_PI = radians(180.0);
 
-    uniform sampler2D u_mass;
-    uniform sampler2D u_height;
-    uniform sampler2D u_velocity;
     uniform vec2 u_dimensions;
-    uniform int u_frame;
-    out vec4 o_result;
 
     ${code}
+
+    out vec4 o_result;
 
     void main() {
       o_result = calc();
     }
   `
+}
+
+export const getIterateShader = (code: string) => {
+  return getShader(`
+    uniform sampler2D u_mass;
+    uniform sampler2D u_height;
+    uniform sampler2D u_velocity;
+
+    ${code}
+  `)
+}
+
+export const getDrawShader = (code: string) => {
+  return getShader(`
+    uniform sampler2D u_mass;
+    uniform sampler2D u_height;
+    uniform sampler2D u_velocity;
+
+    ${code}
+  `)
 }

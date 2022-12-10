@@ -1,5 +1,4 @@
-import { FieldImageShaderGroup } from './types'
-import { getShader } from './utils'
+import { getDrawShader, getIterateShader, getShader } from './utils'
 
 export const TEXTURES_INDEXES = {
   mass: 1,
@@ -7,49 +6,42 @@ export const TEXTURES_INDEXES = {
   velocity: 3,
 }
 
-interface Shaders {
-  init: Required<FieldImageShaderGroup>
-  update?: FieldImageShaderGroup
-  iterate?: FieldImageShaderGroup
-  draw?: FieldImageShaderGroup
-}
-
-export const GET_DEFAULT_FRAGMENT_SHADERS = (): Shaders => ({
+export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
   init: {
-    mass: `#version 300 es
-      precision highp float;
-      out vec4 o_result;
-      void main() {
-        o_result = vec4(1);
+    mass: getShader(`
+      vec4 calc() {
+        return vec4(1);
       }
-    `,
+    `),
 
-    height: `#version 300 es
-      precision highp float;
-      out vec4 o_result;
-      void main() {
-        o_result = vec4(0);
+    height: getShader(`
+      vec4 calc() {
+        return vec4(0);
       }
-    `,
+    `),
 
-    velocity: `#version 300 es
-      precision highp float;
-      out vec4 o_result;
-      void main() {
-        o_result = vec4(0);
+    velocity: getShader(`
+      vec4 calc() {
+        return vec4(0);
       }
-    `,
+    `),
   },
 
   iterate: {
-    height: getShader(`
+    mass: getIterateShader(`
+      vec4 calc() {
+        return texelFetch(u_mass, ivec2(gl_FragCoord.xy), 0);
+      }
+    `),
+
+    height: getIterateShader(`
       vec4 calc() {
         ivec2 texelCoord = ivec2(gl_FragCoord.xy);
         return texelFetch(u_height, texelCoord, 0) + texelFetch(u_velocity, texelCoord, 0);
       }
     `),
 
-    velocity: getShader(`
+    velocity: getIterateShader(`
       const vec4 MASS_CORRECTION = vec4(0.98, 1, 1.02, 0);
 
       vec4 calc() {
@@ -80,9 +72,23 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = (): Shaders => ({
   },
 
   draw: {
-    height: getShader(`
+    mass: getDrawShader(`
+      vec4 calc() {
+        vec4 value = abs(texelFetch(u_mass, ivec2(gl_FragCoord.xy), 0));
+        return vec4(value.xyz, 1);
+      }
+    `),
+
+    height: getDrawShader(`
       vec4 calc() {
         vec4 value = abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0));
+        return vec4(value.xyz, 1);
+      }
+    `),
+
+    velocity: getDrawShader(`
+      vec4 calc() {
+        vec4 value = abs(texelFetch(u_velocity, ivec2(gl_FragCoord.xy), 0));
         return vec4(value.xyz, 1);
       }
     `),
