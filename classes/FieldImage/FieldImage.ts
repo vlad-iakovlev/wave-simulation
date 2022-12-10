@@ -5,7 +5,7 @@ import { FieldImageShaders } from './types'
 export class FieldImage {
   private cssWidth = window.innerWidth
   private cssHeight = window.innerHeight
-  private scale = window.devicePixelRatio
+  private scale = Math.min(window.devicePixelRatio, 2)
   private width = Math.floor(this.cssWidth * this.scale)
   private height = Math.floor(this.cssHeight * this.scale)
 
