@@ -11,7 +11,7 @@ const initShaders: FieldImageShaders = {
       float len = length(gl_FragCoord.xy - center) / radius;
 
       if (len < 1.0) {
-        return vec4(cos(len * 5.0 * M_PI) * (1.0 - len));
+        return vec4(cos(len * 5.0 * M_PI) * (1.0 - len) * 2.0);
       }
 
       return vec4(0);
