@@ -42,7 +42,7 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
     `),
 
     velocity: getIterateShader(`
-      const vec4 MASS_CORRECTION = vec4(0.98, 1, 1.02, 0);
+      const vec4 MASS_CORRECTION = vec4(0.98, 1, 1.04, 0);
 
       vec4 calc() {
         ivec2 texelCoord = ivec2(gl_FragCoord.xy);
