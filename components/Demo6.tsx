@@ -6,12 +6,10 @@ import { useResize } from '../hooks/useResize'
 
 const initShaders: FieldImageShaders = {
   mass: getShader(`
-    const float MAX_ITER = 128.0;
-
     float mandelbrot(vec2 uv) {
       vec2 c = uv * 5.0 - vec2(0.6, 0);
       vec2 z = vec2(0);
-      for (float iter = 0.0; iter < MAX_ITER; iter++) {
+      for (int i = 0; i < 32; i++) {
         z = vec2(z.x * z.x - z.y * z.y, z.x * z.y * 2.0) + c;
         if (dot(z, z) > 4.0) return 1.0;
       }
