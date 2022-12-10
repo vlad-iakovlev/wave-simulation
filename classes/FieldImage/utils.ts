@@ -4,7 +4,7 @@ export const getShader = (code: string) => {
 
     const float M_PI = radians(180.0);
 
-    uniform vec2 u_dimensions;
+    uniform vec2 u_resolution;
 
     ${code}
 

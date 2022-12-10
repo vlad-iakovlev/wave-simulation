@@ -58,7 +58,7 @@ export class FieldImage {
     this.gl.vertexAttribPointer(positionLoc, 2, this.gl.FLOAT, false, 0, 0)
 
     this.gl.uniform2f(
-      this.gl.getUniformLocation(program, 'u_dimensions'),
+      this.gl.getUniformLocation(program, 'u_resolution'),
       this.width,
       this.height
     )

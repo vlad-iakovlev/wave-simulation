@@ -7,8 +7,8 @@ import { useResize } from '../hooks/useResize'
 const initShaders: FieldImageShaders = {
   mass: getShader(`
     vec4 calc() {
-      vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
-      float radius = min(u_dimensions.x, u_dimensions.y) * 0.25;
+      vec2 center = vec2(u_resolution) * 0.5 - 0.5;
+      float radius = min(u_resolution.x, u_resolution.y) * 0.25;
 
       if (length(gl_FragCoord.xy - center) < radius) {
         return vec4(0.7);
@@ -20,8 +20,8 @@ const initShaders: FieldImageShaders = {
 
   height: getShader(`
     vec4 calc() {
-      vec2 center = vec2(u_dimensions) * 0.5 - 0.5;
-      float radius = min(u_dimensions.x, u_dimensions.y) * 0.05;
+      vec2 center = vec2(u_resolution) * 0.5 - 0.5;
+      float radius = min(u_resolution.x, u_resolution.y) * 0.05;
       vec2 diff = (gl_FragCoord.xy - center + vec2(radius * 6.0, -radius * 3.0)) / radius;
 
       if (length(diff) < 1.0) {

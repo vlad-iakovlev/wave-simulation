@@ -47,7 +47,7 @@ export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
       vec4 calc() {
         ivec2 texelCoord = ivec2(gl_FragCoord.xy);
 
-        vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_dimensions.xy - gl_FragCoord.xy));
+        vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_resolution.xy - gl_FragCoord.xy));
         vec4 angles = sides * sides.yzwx * 0.3;
 
         float weight = 1.0 / (dot(sides, vec4(1)) + dot(angles, vec4(1)));
