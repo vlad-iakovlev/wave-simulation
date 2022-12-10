@@ -21,14 +21,14 @@ const initShaders: FieldImageShaders = {
   height: getShader(`
     vec4 calc() {
       vec2 center = vec2(u_resolution) * 0.5 - 0.5;
-      float radius = min(u_resolution.x, u_resolution.y) * 0.25;
+      float radius = min(u_resolution.x, u_resolution.y) * 0.15;
       vec2 diff = gl_FragCoord.xy - center;
 
       if (
-        length(diff + u_resolution * vec2( 0.25,  0.25)) < radius * 0.5 ||
-        length(diff + u_resolution * vec2( 0.25, -0.25)) < radius * 0.5 ||
-        length(diff + u_resolution * vec2(-0.25,  0.25)) < radius * 0.5 ||
-        length(diff + u_resolution * vec2(-0.25, -0.25)) < radius * 0.5
+        length(diff + u_resolution * vec2( 0.25,  0.25)) < radius ||
+        length(diff + u_resolution * vec2( 0.25, -0.25)) < radius ||
+        length(diff + u_resolution * vec2(-0.25,  0.25)) < radius ||
+        length(diff + u_resolution * vec2(-0.25, -0.25)) < radius
       ) {
         return vec4(1);
       }
