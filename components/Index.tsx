@@ -7,6 +7,7 @@ const pages = [
   { name: 'Demo 3', href: '/demo3' },
   { name: 'Demo 4', href: '/demo4' },
   { name: 'Demo 5', href: '/demo5' },
+  { name: 'Demo 6', href: '/demo6' },
 ]
 
 export const Index: FC = () => {
