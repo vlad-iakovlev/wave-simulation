@@ -1,5 +1,6 @@
 import { FC, useCallback, useRef } from 'react'
 import { FieldImage, FieldImageShaders, getShader } from '../classes/FieldImage'
+import { useFullscreenOnSpace } from '../hooks/useFullscreenOnSpace'
 import { useRaf } from '../hooks/useRaf'
 import { useResize } from '../hooks/useResize'
 
@@ -44,6 +45,8 @@ export const Demo1: FC = () => {
       fieldImage.current = undefined
     }, [])
   )
+
+  useFullscreenOnSpace(root)
 
   return <div ref={root} />
 }
