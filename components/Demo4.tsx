@@ -25,10 +25,10 @@ const initShaders: FieldImageShaders = {
       vec2 diff = gl_FragCoord.xy - center;
 
       if (
-        length(diff + vec2(radius, radius)) < radius * 0.5 ||
-        length(diff + vec2(radius, -radius)) < radius * 0.5 ||
-        length(diff + vec2(-radius, radius)) < radius * 0.5 ||
-        length(diff + vec2(-radius, -radius)) < radius * 0.5
+        length(diff + u_resolution * vec2( 0.25,  0.25)) < radius * 0.5 ||
+        length(diff + u_resolution * vec2( 0.25, -0.25)) < radius * 0.5 ||
+        length(diff + u_resolution * vec2(-0.25,  0.25)) < radius * 0.5 ||
+        length(diff + u_resolution * vec2(-0.25, -0.25)) < radius * 0.5
       ) {
         return vec4(1);
       }
