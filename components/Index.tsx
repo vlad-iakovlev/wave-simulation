@@ -22,6 +22,7 @@ export const Index: FC = () => {
       <h1 className="text-2xl sm:text-3xl font-bold text-center">
         Cellular automaton for wave simulation
       </h1>
+
       <p className="mb-4 text-zinc-700 text-center">
         (inspired by{' '}
         <a
