@@ -47,7 +47,7 @@ const initShader = getShader(`
 `)
 
 const iterateShader = getShader(`
-  const vec4 MASS_CORRECTION = vec4(0.02, 0, -0.04, 0);
+  const vec4 MASS_CORRECTION = vec4(0.02, 0, -0.035, -0.04);
 
   float box(vec2 p, vec2 b) {
     vec2 d = abs(p) - b;
@@ -105,9 +105,8 @@ const iterateShader = getShader(`
 const drawShader = getDrawShader(`
   vec4 calcColor() {
     vec4 value = texelFetch(u_accumulated, ivec2(gl_FragCoord.xy), 0) * 0.03;
-    vec4 color = vec4(value.xyz, 1);
-    color.r += pow(color.b / (color.r + color.g + color.b), 4.0) * color.b;
-    return color;
+    float purple = pow(value.a / dot(value, vec4(1)), 2.0) * value.a;
+    return vec4(value.rgb + vec3(purple, 0, 0), 1);
   }
 `)
 

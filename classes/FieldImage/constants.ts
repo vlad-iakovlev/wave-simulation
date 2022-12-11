@@ -33,7 +33,7 @@ export const INIT_SHADER = getShader(`
 `)
 
 export const ITERATE_SHADER = getShader(`
-  const vec4 MASS_CORRECTION = vec4(0.02, 0, -0.04, 0);
+  const vec4 MASS_CORRECTION = vec4(0.02, 0, -0.035, -0.04);
 
   vec4 getNextHeight(ivec2 coord) {
     return texelFetch(u_height, coord, 0) + texelFetch(u_velocity, coord, 0);
@@ -82,8 +82,7 @@ export const ITERATE_SHADER = getShader(`
 export const DRAW_SHADER = getDrawShader(`
   vec4 calcColor() {
     vec4 value = abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0));
-    vec4 color = vec4(value.xyz, 1);
-    color.r += pow(color.b / (color.r + color.g + color.b), 4.0) * color.b;
-    return color;
+    float purple = pow(value.a / dot(value, vec4(1)), 2.0) * value.a;
+    return vec4(value.rgb + vec3(purple, 0, 0), 1);
   }
 `)
