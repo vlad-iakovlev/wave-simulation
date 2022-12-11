@@ -1,46 +1,51 @@
-import { GET_DEFAULT_FRAGMENT_SHADERS, TEXTURES_INDEXES } from './constants'
-import { createProgramFromSources, getWebGL2Context } from '../../utils/webgl'
-import { FieldImageShaders } from './types'
+import { createProgramFromSources } from '../../utils/webgl'
+import {
+  DRAW_SHADER,
+  INIT_SHADER,
+  ITERATE_SHADER,
+  TEXTURE_NAMES,
+  VERTEX_SHADER,
+} from './constants'
 
 export class FieldImage {
-  private width = Math.floor(this.cssWidth * this.scale)
-  private height = Math.floor(this.cssHeight * this.scale)
+  private canvasWidth = Math.floor(this.cssWidth * this.scale)
+  private canvasHeight = Math.floor(this.cssHeight * this.scale)
+  private rdPos = 0
+
+  private get wrPos() {
+    return this.rdPos ? 0 : 1
+  }
 
   readonly canvas = (() => {
     const canvas = document.createElement('canvas')
-    canvas.width = this.width
-    canvas.height = this.height
+    canvas.width = this.canvasWidth
+    canvas.height = this.canvasHeight
     canvas.style.width = `${this.cssWidth}px`
     canvas.style.height = `${this.cssHeight}px`
     return canvas
   })()
 
   private gl = (() => {
-    const gl = getWebGL2Context(this.canvas)
-    gl.viewport(0, 0, this.width, this.height)
+    const gl = this.canvas.getContext('webgl2')
+    if (!gl) throw new Error('Could not get WebGL2 context')
+
+    const ext = gl.getExtension('EXT_color_buffer_float')
+    if (!ext) throw new Error('Could not use EXT_color_buffer_float')
+
     return gl
   })()
 
-  private vs = `#version 300 es
-    in vec4 a_position;
-    void main() {
-      gl_Position = a_position;
-    }
-  `
-
-  private fs = GET_DEFAULT_FRAGMENT_SHADERS()
-
   private programsCache = new Map<string, WebGLProgram>()
 
-  private createAndUseProgram(fs: string) {
-    const programFromCache = this.programsCache.get(fs)
+  private createAndUseProgram(shader: string) {
+    const programFromCache = this.programsCache.get(shader)
     if (programFromCache) {
       this.gl.useProgram(programFromCache)
       return programFromCache
     }
 
-    const program = createProgramFromSources(this.gl, this.vs, fs)
-    this.programsCache.set(fs, program)
+    const program = createProgramFromSources(this.gl, VERTEX_SHADER, shader)
+    this.programsCache.set(shader, program)
     this.gl.useProgram(program)
 
     const positionLoc = this.gl.getAttribLocation(program, 'a_position')
@@ -56,8 +61,8 @@ export class FieldImage {
 
     this.gl.uniform2f(
       this.gl.getUniformLocation(program, 'u_resolution'),
-      this.width,
-      this.height
+      this.canvasWidth,
+      this.canvasHeight
     )
 
     return program
@@ -65,8 +70,8 @@ export class FieldImage {
 
   private fbCache = new Map<WebGLTexture, WebGLFramebuffer>()
 
-  private createAndUseTextureFB(texture: WebGLTexture) {
-    const fbFromCache = this.fbCache.get(texture)
+  private createAndUseTexturesFB(textures: WebGLTexture[]) {
+    const fbFromCache = this.fbCache.get(textures)
     if (fbFromCache) {
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbFromCache)
       return fbFromCache
@@ -74,43 +79,40 @@ export class FieldImage {
 
     const fb = this.gl.createFramebuffer()
     if (!fb) throw new Error('Cannot create framebuffer')
-    this.fbCache.set(texture, fb)
+    this.fbCache.set(textures, fb)
 
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb)
-    this.gl.framebufferTexture2D(
-      this.gl.FRAMEBUFFER,
+    textures.forEach((texture, index) => {
+      this.gl.framebufferTexture2D(
+        this.gl.FRAMEBUFFER,
+        this.gl.COLOR_ATTACHMENT0 + index,
+        this.gl.TEXTURE_2D,
+        texture,
+        0
+      )
+    })
+    this.gl.drawBuffers([
       this.gl.COLOR_ATTACHMENT0,
-      this.gl.TEXTURE_2D,
-      texture,
-      0
-    )
+      this.gl.COLOR_ATTACHMENT1,
+      this.gl.COLOR_ATTACHMENT2,
+    ])
 
     return fb
   }
 
-  private renderToTexture(texture: WebGLTexture) {
-    this.createAndUseTextureFB(texture)
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
-  }
-
-  private renderToCanvas() {
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
-  }
-
-  createTexture() {
+  private createTexture(index: number) {
     const texture = this.gl.createTexture()
     if (!texture) throw new Error('Could not create texture')
 
-    this.gl.activeTexture(this.gl.TEXTURE0)
+    this.gl.activeTexture(this.gl.TEXTURE0 + index)
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
 
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
       0,
       this.gl.RGBA32F,
-      this.width,
-      this.height,
+      this.canvasWidth,
+      this.canvasHeight,
       0,
       this.gl.RGBA,
       this.gl.FLOAT,
@@ -130,53 +132,31 @@ export class FieldImage {
     return texture
   }
 
-  private textures = {
-    read: {
-      mass: this.createTexture(),
-      height: this.createTexture(),
-      velocity: this.createTexture(),
-    },
-    write: {
-      mass: this.createTexture(),
-      height: this.createTexture(),
-      velocity: this.createTexture(),
-    },
-  }
+  private textures = (() => {
+    return [0, 1].map((pos) => {
+      return TEXTURE_NAMES.map((textureName, index) => {
+        return this.createTexture(TEXTURE_NAMES.length * pos + index)
+      })
+    })
+  })()
 
-  private initTextures(fs: Required<FieldImageShaders>) {
-    for (const textureName of ['mass', 'height', 'velocity'] as const) {
-      this.createAndUseProgram(fs[textureName])
-      this.renderToTexture(this.textures.read[textureName])
-    }
-  }
+  private runProgram(shader: string, toCanvas = false) {
+    const program = this.createAndUseProgram(shader)
 
-  private swapTextures(textureName: 'mass' | 'height' | 'velocity') {
-    ;[this.textures.read[textureName], this.textures.write[textureName]] = [
-      this.textures.write[textureName],
-      this.textures.read[textureName],
-    ]
-  }
-
-  private runProgram(
-    method: 'iterate' | 'draw',
-    textureName: 'mass' | 'height' | 'velocity'
-  ) {
-    const program = this.createAndUseProgram(this.fs[method][textureName])
-
-    for (const name of ['mass', 'height', 'velocity'] as const) {
-      this.gl.activeTexture(this.gl.TEXTURE0 + TEXTURES_INDEXES[name])
-      this.gl.bindTexture(this.gl.TEXTURE_2D, this.textures.read[name])
+    TEXTURE_NAMES.forEach((textureName, index) => {
       this.gl.uniform1i(
-        this.gl.getUniformLocation(program, `u_${name}`),
-        TEXTURES_INDEXES[name]
+        this.gl.getUniformLocation(program, `u_${textureName}`),
+        TEXTURE_NAMES.length * this.rdPos + index
       )
-    }
+    })
 
-    if (method === 'draw') {
-      this.renderToCanvas()
+    if (toCanvas) {
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
+      this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
     } else {
-      this.renderToTexture(this.textures.write[textureName])
-      this.swapTextures(textureName)
+      this.createAndUseTexturesFB(this.textures[this.wrPos])
+      this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+      this.rdPos = this.wrPos
     }
   }
 
@@ -184,17 +164,16 @@ export class FieldImage {
     private cssWidth: number,
     private cssHeight: number,
     private scale: number,
-    initShaders: FieldImageShaders
+    initShader = INIT_SHADER
   ) {
-    this.initTextures({ ...this.fs.init, ...initShaders })
+    this.runProgram(initShader)
   }
 
-  iterate() {
-    this.runProgram('iterate', 'height')
-    this.runProgram('iterate', 'velocity')
+  iterate(iterateShader = ITERATE_SHADER) {
+    this.runProgram(iterateShader)
   }
 
-  draw(textureName: 'mass' | 'height' | 'velocity') {
-    this.runProgram('draw', textureName)
+  draw(drawShader = DRAW_SHADER) {
+    this.runProgram(drawShader, true)
   }
 }

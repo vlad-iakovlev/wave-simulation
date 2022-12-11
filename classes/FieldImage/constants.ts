@@ -1,96 +1,72 @@
-import { getDrawShader, getIterateShader, getShader } from './utils'
+import { getDrawShader, getShader } from './utils'
 
-export const TEXTURES_INDEXES = {
-  mass: 1,
-  height: 2,
-  velocity: 3,
-}
+export const TEXTURE_NAMES = ['mass', 'height', 'velocity'] as const
 
-export const GET_DEFAULT_FRAGMENT_SHADERS = () => ({
-  init: {
-    mass: getShader(`
-      vec4 calc() {
-        return vec4(1);
-      }
-    `),
+export const VERTEX_SHADER = `#version 300 es
+  in vec4 a_position;
+  void main() {
+    gl_Position = a_position;
+  }
+`
 
-    height: getShader(`
-      vec4 calc() {
-        return vec4(0);
-      }
-    `),
+export const INIT_SHADER = getShader(`
+  vec4 calcMass() {
+    return vec4(1);
+  }
 
-    velocity: getShader(`
-      vec4 calc() {
-        return vec4(0);
-      }
-    `),
-  },
+  vec4 calcHeight() {
+    return vec4(0);
+  }
 
-  iterate: {
-    mass: getIterateShader(`
-      vec4 calc() {
-        return texelFetch(u_mass, ivec2(gl_FragCoord.xy), 0);
-      }
-    `),
+  vec4 calcVelocity() {
+    return vec4(0);
+  }
+`)
 
-    height: getIterateShader(`
-      vec4 calc() {
-        ivec2 texelCoord = ivec2(gl_FragCoord.xy);
-        return texelFetch(u_height, texelCoord, 0) + texelFetch(u_velocity, texelCoord, 0);
-      }
-    `),
+export const ITERATE_SHADER = getShader(`
+  const vec4 MASS_CORRECTION = vec4(0.98, 1, 1.04, 0);
 
-    velocity: getIterateShader(`
-      const vec4 MASS_CORRECTION = vec4(0.98, 1, 1.04, 0);
+  vec4 getNextHeight(ivec2 coord) {
+    return texelFetch(u_height, coord, 0) + texelFetch(u_velocity, coord, 0);
+  }
 
-      vec4 calc() {
-        ivec2 texelCoord = ivec2(gl_FragCoord.xy);
+  vec4 calcMass() {
+    return texelFetch(u_mass, ivec2(gl_FragCoord.xy), 0);
+  }
 
-        vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_resolution.xy - gl_FragCoord.xy));
-        vec4 angles = sides * sides.yzwx * 0.3;
+  vec4 calcHeight() {
+    return getNextHeight(ivec2(gl_FragCoord.xy));
+  }
 
-        float weight = 1.0 / (dot(sides, vec4(1)) + dot(angles, vec4(1)));
-        sides *= weight;
-        angles *= weight;
+  vec4 calcVelocity() {
+    ivec2 texelCoord = ivec2(gl_FragCoord.xy);
 
-        vec4 force =
-          angles.x * texelFetch(u_height, texelCoord + ivec2(-1, -1), 0) +
-          sides.y  * texelFetch(u_height, texelCoord + ivec2( 0, -1), 0) +
-          angles.y * texelFetch(u_height, texelCoord + ivec2( 1, -1), 0) +
-          sides.x  * texelFetch(u_height, texelCoord + ivec2(-1,  0), 0) +
-          -1.0     * texelFetch(u_height, texelCoord                , 0) +
-          sides.z  * texelFetch(u_height, texelCoord + ivec2( 1,  0), 0) +
-          angles.w * texelFetch(u_height, texelCoord + ivec2(-1,  1), 0) +
-          sides.w  * texelFetch(u_height, texelCoord + ivec2( 0,  1), 0) +
-          angles.z * texelFetch(u_height, texelCoord + ivec2( 1,  1), 0);
+    vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_resolution.xy - gl_FragCoord.xy));
+    vec4 angles = sides * sides.yzwx * 0.3;
 
-        vec4 mass = MASS_CORRECTION * texelFetch(u_mass, texelCoord, 0).x;
-        return texelFetch(u_velocity, texelCoord, 0) + force * mass;
-      }
-    `),
-  },
+    float weight = 1.0 / (dot(sides, vec4(1)) + dot(angles, vec4(1)));
+    sides *= weight;
+    angles *= weight;
 
-  draw: {
-    mass: getDrawShader(`
-      vec4 calc() {
-        vec4 value = abs(texelFetch(u_mass, ivec2(gl_FragCoord.xy), 0));
-        return vec4(value.xyz, 1);
-      }
-    `),
+    vec4 force =
+      angles.x * getNextHeight(texelCoord + ivec2(-1, -1)) +
+      sides.y  * getNextHeight(texelCoord + ivec2( 0, -1)) +
+      angles.y * getNextHeight(texelCoord + ivec2( 1, -1)) +
+      sides.x  * getNextHeight(texelCoord + ivec2(-1,  0)) +
+      -1.0     * getNextHeight(texelCoord                ) +
+      sides.z  * getNextHeight(texelCoord + ivec2( 1,  0)) +
+      angles.w * getNextHeight(texelCoord + ivec2(-1,  1)) +
+      sides.w  * getNextHeight(texelCoord + ivec2( 0,  1)) +
+      angles.z * getNextHeight(texelCoord + ivec2( 1,  1));
 
-    height: getDrawShader(`
-      vec4 calc() {
-        vec4 value = abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0));
-        return vec4(value.xyz, 1);
-      }
-    `),
+    vec4 mass = MASS_CORRECTION * texelFetch(u_mass, texelCoord, 0).x;
+    return texelFetch(u_velocity, texelCoord, 0) + force * mass;
+  }
+`)
 
-    velocity: getDrawShader(`
-      vec4 calc() {
-        vec4 value = abs(texelFetch(u_velocity, ivec2(gl_FragCoord.xy), 0));
-        return vec4(value.xyz, 1);
-      }
-    `),
-  },
-})
+export const DRAW_SHADER = getDrawShader(`
+  vec4 calcColor() {
+    vec4 value = abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0));
+    return vec4(value.xyz, 1);
+  }
+`)

@@ -1,13 +1,3 @@
-export const getWebGL2Context = (canvas: HTMLCanvasElement) => {
-  const gl = canvas.getContext('webgl2')
-  if (!gl) throw new Error('Could not get WebGL2 context')
-
-  const ext = gl.getExtension('EXT_color_buffer_float')
-  if (!ext) throw new Error('Could not use EXT_color_buffer_float')
-
-  return gl
-}
-
 export const createShader = (
   gl: WebGL2RenderingContext,
   type: number,
