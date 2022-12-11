@@ -18,7 +18,7 @@ const pages = [
 
 export const Index: FC = () => {
   return (
-    <div className="py-8">
+    <div className="flex flex-col items-center justify-center min-h-full py-8">
       <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-center">
         Cellular automaton for wave simulation
       </h1>
