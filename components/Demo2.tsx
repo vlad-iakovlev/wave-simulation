@@ -32,7 +32,7 @@ const initShaders: FieldImageShaders = {
   `),
 }
 
-export const Demo2: FC<DemoProps> = ({ width, height, scale }) => {
+export const Demo2: FC<DemoProps> = ({ width, height, scale, speed }) => {
   const root = useRef<HTMLDivElement>(null)
   const fieldImage = useRef<FieldImage>()
 
@@ -47,10 +47,9 @@ export const Demo2: FC<DemoProps> = ({ width, height, scale }) => {
         root.current?.appendChild(fieldImage.current.canvas)
       }
 
-      fieldImage.current.iterate()
-      fieldImage.current.iterate()
+      for (let i = 0; i < speed; i++) fieldImage.current.iterate()
       fieldImage.current.draw('height')
-    }, [height, scale, width])
+    }, [height, speed, scale, width])
   )
 
   return <div ref={root} />

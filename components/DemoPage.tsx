@@ -5,6 +5,7 @@ export interface DemoProps {
   width: number
   height: number
   scale: number
+  speed: number
 }
 
 export interface DemoPageProps {
@@ -39,6 +40,7 @@ export const DemoPage: FC<DemoPageProps> = ({ Demo }) => {
           width={width}
           height={height}
           scale={scale}
+          speed={2}
         />
       )}
     </div>
