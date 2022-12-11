@@ -23,6 +23,10 @@ const initShader = getShader(`
   vec4 calcVelocity() {
     return vec4(0);
   }
+
+  vec4 calcAccumulated() {
+    return vec4(0);
+  }
 `)
 
 export const Demo5: FC<DemoProps> = ({ width, height, scale, speed }) => {

@@ -91,11 +91,11 @@ export class FieldImage {
         0
       )
     })
-    this.gl.drawBuffers([
-      this.gl.COLOR_ATTACHMENT0,
-      this.gl.COLOR_ATTACHMENT1,
-      this.gl.COLOR_ATTACHMENT2,
-    ])
+    this.gl.drawBuffers(
+      TEXTURE_NAMES.map((textureName, index) => {
+        return this.gl.COLOR_ATTACHMENT0 + index
+      })
+    )
 
     return fb
   }

@@ -1,24 +1,27 @@
+import { TEXTURE_NAMES } from './constants'
+
 export const getShader = (code: string) => {
   return `#version 300 es
     precision highp float;
 
     const float M_PI = radians(180.0);
 
-    uniform sampler2D u_mass;
-    uniform sampler2D u_height;
-    uniform sampler2D u_velocity;
+    ${TEXTURE_NAMES.map((textureName) => {
+      return `uniform sampler2D u_${textureName};`
+    }).join('\n')}
     uniform vec2 u_resolution;
 
     ${code}
 
-    layout(location = 0) out vec4 o_mass;
-    layout(location = 1) out vec4 o_height;
-    layout(location = 2) out vec4 o_velocity;
+    ${TEXTURE_NAMES.map((textureName, index) => {
+      return `layout(location = ${index}) out vec4 o_${textureName};`
+    }).join('\n')}
 
     void main() {
       o_mass = calcMass();
       o_height = calcHeight();
       o_velocity = calcVelocity();
+      o_accumulated = calcAccumulated();
     }
   `
 }
@@ -27,9 +30,9 @@ export const getDrawShader = (code: string) => {
   return `#version 300 es
     precision highp float;
 
-    uniform sampler2D u_mass;
-    uniform sampler2D u_height;
-    uniform sampler2D u_velocity;
+    ${TEXTURE_NAMES.map((textureName) => {
+      return `uniform sampler2D u_${textureName};`
+    }).join('\n')}
     uniform vec2 u_resolution;
 
     ${code}

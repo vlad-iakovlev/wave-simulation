@@ -1,6 +1,11 @@
 import { getDrawShader, getShader } from './utils'
 
-export const TEXTURE_NAMES = ['mass', 'height', 'velocity'] as const
+export const TEXTURE_NAMES = [
+  'mass',
+  'height',
+  'velocity',
+  'accumulated',
+] as const
 
 export const VERTEX_SHADER = `#version 300 es
   in vec4 a_position;
@@ -21,10 +26,14 @@ export const INIT_SHADER = getShader(`
   vec4 calcVelocity() {
     return vec4(0);
   }
+
+  vec4 calcAccumulated() {
+    return vec4(0);
+  }
 `)
 
 export const ITERATE_SHADER = getShader(`
-  const vec4 MASS_CORRECTION = vec4(0.98, 1, 1.04, 0);
+  const vec4 MASS_CORRECTION = vec4(0.02, 0, -0.04, 0);
 
   vec4 getNextHeight(ivec2 coord) {
     return texelFetch(u_height, coord, 0) + texelFetch(u_velocity, coord, 0);
@@ -59,14 +68,22 @@ export const ITERATE_SHADER = getShader(`
       sides.w  * getNextHeight(texelCoord + ivec2( 0,  1)) +
       angles.z * getNextHeight(texelCoord + ivec2( 1,  1));
 
-    vec4 mass = MASS_CORRECTION * texelFetch(u_mass, texelCoord, 0).x;
+    vec4 mass = texelFetch(u_mass, texelCoord, 0);
+    mass += step(0.001, mass) * MASS_CORRECTION * (1.0 / mass);
     return texelFetch(u_velocity, texelCoord, 0) + force * mass;
+  }
+
+  vec4 calcAccumulated() {
+    ivec2 texelCoord = ivec2(gl_FragCoord.xy);
+    return texelFetch(u_accumulated, texelCoord, 0) + abs(getNextHeight(texelCoord));
   }
 `)
 
 export const DRAW_SHADER = getDrawShader(`
   vec4 calcColor() {
     vec4 value = abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0));
-    return vec4(value.xyz, 1);
+    vec4 color = vec4(value.xyz, 1);
+    color.r += pow(color.b / (color.r + color.g + color.b), 4.0) * color.b;
+    return color;
   }
 `)
