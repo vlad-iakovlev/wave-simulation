@@ -18,12 +18,12 @@ const pages = [
 
 export const Index: FC = () => {
   return (
-    <div className="p-4">
+    <div className="py-8">
       <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-center">
         Cellular automaton for wave simulation
       </h1>
 
-      <p className="mb-4 text-zinc-700 text-center">
+      <p className="mb-8 text-zinc-700 text-center">
         (inspired by{' '}
         <a
           className="underline"
