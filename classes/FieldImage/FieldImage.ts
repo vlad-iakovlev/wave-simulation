@@ -3,9 +3,6 @@ import { createProgramFromSources, getWebGL2Context } from '../../utils/webgl'
 import { FieldImageShaders } from './types'
 
 export class FieldImage {
-  private cssWidth = window.innerWidth
-  private cssHeight = window.innerHeight
-  private scale = Math.min(window.devicePixelRatio, 2)
   private width = Math.floor(this.cssWidth * this.scale)
   private height = Math.floor(this.cssHeight * this.scale)
 
@@ -183,7 +180,12 @@ export class FieldImage {
     }
   }
 
-  constructor(initShaders: FieldImageShaders) {
+  constructor(
+    private cssWidth: number,
+    private cssHeight: number,
+    private scale: number,
+    initShaders: FieldImageShaders
+  ) {
     this.initTextures({ ...this.fs.init, ...initShaders })
   }
 

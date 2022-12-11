@@ -1,8 +1,7 @@
 import { FC, useCallback, useRef } from 'react'
 import { FieldImage, FieldImageShaders, getShader } from '../classes/FieldImage'
-import { useFullscreenOnSpace } from '../hooks/useFullscreenOnSpace'
 import { useRaf } from '../hooks/useRaf'
-import { useResize } from '../hooks/useResize'
+import { DemoProps } from './DemoPage'
 
 const initShaders: FieldImageShaders = {
   height: getShader(`
@@ -19,14 +18,14 @@ const initShaders: FieldImageShaders = {
   `),
 }
 
-export const Demo1: FC = () => {
+export const Demo1: FC<DemoProps> = ({ width, height, scale }) => {
   const root = useRef<HTMLDivElement>(null)
   const fieldImage = useRef<FieldImage>()
 
   useRaf(
     useCallback(() => {
       if (!fieldImage.current) {
-        fieldImage.current = new FieldImage(initShaders)
+        fieldImage.current = new FieldImage(width, height, scale, initShaders)
 
         while (root.current?.firstChild) {
           root.current.removeChild(root.current.firstChild)
@@ -37,16 +36,8 @@ export const Demo1: FC = () => {
       fieldImage.current.iterate()
       fieldImage.current.iterate()
       fieldImage.current.draw('height')
-    }, [])
+    }, [height, scale, width])
   )
-
-  useResize(
-    useCallback(() => {
-      fieldImage.current = undefined
-    }, [])
-  )
-
-  useFullscreenOnSpace(root)
 
   return <div ref={root} />
 }

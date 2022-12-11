@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { Demo6 } from '../components/Demo6'
+import { DemoPage } from '../components/DemoPage'
 
 const Home: NextPage = () => (
   <>
@@ -8,7 +9,7 @@ const Home: NextPage = () => (
       <title>Wave simulation – Demo 6</title>
     </Head>
 
-    <Demo6 />
+    <DemoPage Demo={Demo6} />
   </>
 )
 
