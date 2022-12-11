@@ -18,12 +18,30 @@ const pages = [
 
 export const Index: FC = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-center p-4 gap-4">
-      {pages.map((page) => (
-        <Link key={page.href} href={page.href}>
-          <page.Demo width={300} height={200} scale={2} speed={1} />
-        </Link>
-      ))}
+    <div className="p-4">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center">
+        Cellular automaton for wave simulation
+      </h1>
+      <p className="mb-4 text-zinc-700 text-center">
+        (inspired by{' '}
+        <a
+          className="underline"
+          href="https://youtu.be/noUpBKY2rIg"
+          target="_blank"
+          rel="noreferrer"
+        >
+          https://youtu.be/noUpBKY2rIg
+        </a>
+        )
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-center gap-4">
+        {pages.map((page) => (
+          <Link key={page.href} href={page.href}>
+            <page.Demo width={300} height={200} scale={2} speed={1} />
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }
