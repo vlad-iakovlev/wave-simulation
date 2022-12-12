@@ -14,9 +14,9 @@ const initShader = getShader(`
     return 0.0;
   }
 
-  vec4 calcMass() {
+  vec4 calcAcceleration() {
     vec2 uv = (gl_FragCoord.xy - u_resolution * 0.5) / min(u_resolution.x, u_resolution.y) / 2.0;
-    return vec4(1.0 - mandelbrot(uv));
+    return DEFAULT_ACCELERATION * (1.0 - mandelbrot(uv));
   }
 
   vec4 calcHeight() {
@@ -31,11 +31,11 @@ const initShader = getShader(`
     return vec4(0);
   }
 
-  vec4 calcVelocity() {
+  vec4 calcAccumulated() {
     return vec4(0);
   }
 
-  vec4 calcAccumulated() {
+  vec4 calcVelocity() {
     return vec4(0);
   }
 `)

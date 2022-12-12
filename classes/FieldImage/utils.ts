@@ -1,10 +1,12 @@
 import { TEXTURE_NAMES } from './constants'
+import { firstToUpper } from '../../utils/firstToUpper'
 
 export const getShader = (code: string) => {
   return `#version 300 es
     precision highp float;
 
     const float M_PI = radians(180.0);
+    const vec4 DEFAULT_ACCELERATION = vec4(1.03, 1.01, 0.975, 0.97);
 
     ${TEXTURE_NAMES.map((textureName) => {
       return `uniform sampler2D u_${textureName};`
@@ -18,10 +20,9 @@ export const getShader = (code: string) => {
     }).join('\n')}
 
     void main() {
-      o_mass = calcMass();
-      o_height = calcHeight();
-      o_velocity = calcVelocity();
-      o_accumulated = calcAccumulated();
+      ${TEXTURE_NAMES.map((textureName) => {
+        return `o_${textureName} = calc${firstToUpper(textureName)}();`
+      }).join('\n')}
     }
   `
 }

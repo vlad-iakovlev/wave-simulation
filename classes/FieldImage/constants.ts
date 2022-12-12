@@ -1,10 +1,10 @@
 import { getDrawShader, getShader } from './utils'
 
 export const TEXTURE_NAMES = [
-  'mass',
+  'acceleration',
   'height',
-  'velocity',
   'accumulated',
+  'velocity',
 ] as const
 
 export const VERTEX_SHADER = `#version 300 es
@@ -15,36 +15,39 @@ export const VERTEX_SHADER = `#version 300 es
 `
 
 export const INIT_SHADER = getShader(`
-  vec4 calcMass() {
-    return vec4(1);
+  vec4 calcAcceleration() {
+    return DEFAULT_ACCELERATION;
   }
 
   vec4 calcHeight() {
-    return vec4(0);
-  }
-
-  vec4 calcVelocity() {
     return vec4(0);
   }
 
   vec4 calcAccumulated() {
     return vec4(0);
   }
+
+  vec4 calcVelocity() {
+    return vec4(0);
+  }
 `)
 
 export const ITERATE_SHADER = getShader(`
-  const vec4 MASS_CORRECTION = vec4(0.02, 0, -0.035, -0.04);
-
   vec4 getNextHeight(ivec2 coord) {
     return texelFetch(u_height, coord, 0) + texelFetch(u_velocity, coord, 0);
   }
 
-  vec4 calcMass() {
-    return texelFetch(u_mass, ivec2(gl_FragCoord.xy), 0);
+  vec4 calcAcceleration() {
+    return texelFetch(u_acceleration, ivec2(gl_FragCoord.xy), 0);
   }
 
   vec4 calcHeight() {
     return getNextHeight(ivec2(gl_FragCoord.xy));
+  }
+
+  vec4 calcAccumulated() {
+    ivec2 texelCoord = ivec2(gl_FragCoord.xy);
+    return texelFetch(u_accumulated, texelCoord, 0) + abs(getNextHeight(texelCoord));
   }
 
   vec4 calcVelocity() {
@@ -68,21 +71,13 @@ export const ITERATE_SHADER = getShader(`
       sides.w  * getNextHeight(texelCoord + ivec2( 0,  1)) +
       angles.z * getNextHeight(texelCoord + ivec2( 1,  1));
 
-    vec4 mass = texelFetch(u_mass, texelCoord, 0);
-    mass += step(0.001, mass) * MASS_CORRECTION * (1.0 / mass);
-    return texelFetch(u_velocity, texelCoord, 0) + force * mass;
-  }
-
-  vec4 calcAccumulated() {
-    ivec2 texelCoord = ivec2(gl_FragCoord.xy);
-    return texelFetch(u_accumulated, texelCoord, 0) + abs(getNextHeight(texelCoord));
+    return texelFetch(u_velocity, texelCoord, 0) + force * texelFetch(u_acceleration, texelCoord, 0);
   }
 `)
 
 export const DRAW_SHADER = getDrawShader(`
   vec4 calcColor() {
     vec4 value = abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0));
-    float purple = pow(value.a / dot(value, vec4(1)), 2.0) * value.a;
-    return vec4(value.rgb + vec3(purple, 0, 0), 1);
+    return vec4(value.rgb, 1);
   }
 `)

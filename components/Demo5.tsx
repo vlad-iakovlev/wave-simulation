@@ -4,8 +4,8 @@ import { useRaf } from '../hooks/useRaf'
 import { DemoProps } from './DemoPage'
 
 const initShader = getShader(`
-  vec4 calcMass() {
-    return vec4(1);
+  vec4 calcAcceleration() {
+    return DEFAULT_ACCELERATION;
   }
 
   vec4 calcHeight() {
@@ -20,11 +20,11 @@ const initShader = getShader(`
     return vec4(0);
   }
 
-  vec4 calcVelocity() {
+  vec4 calcAccumulated() {
     return vec4(0);
   }
 
-  vec4 calcAccumulated() {
+  vec4 calcVelocity() {
     return vec4(0);
   }
 `)
