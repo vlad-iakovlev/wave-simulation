@@ -16,7 +16,7 @@ const initShader = getShader(`
   vec4 calcAcceleration() {
     vec2 uv = (gl_FragCoord.xy - u_resolution * 0.5 + 0.5) / min(u_resolution.x, u_resolution.y) * 2.0;
 
-    if (triangle(uv * 3.0) < 0.0) {
+    if (triangle(uv * 2.5) < 0.0) {
       return pow(DEFAULT_ACCELERATION, vec4(3)) * pow(1.0 / 1.5, 2.0);
     }
 
