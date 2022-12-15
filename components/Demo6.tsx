@@ -14,29 +14,21 @@ const initShader = getShader(`
     return 0.0;
   }
 
-  vec4 calcAcceleration() {
+  void main () {
     vec2 uv = (gl_FragCoord.xy - u_resolution * 0.5) / min(u_resolution.x, u_resolution.y) / 2.0;
-    return DEFAULT_ACCELERATION * (1.0 - mandelbrot(uv));
-  }
 
-  vec4 calcHeight() {
+    o_acceleration = DEFAULT_ACCELERATION * (1.0 - mandelbrot(uv));
+    o_height = vec4(0);
+    o_accumulated = vec4(0);
+    o_velocity = vec4(0);
+
     vec2 center = vec2(u_resolution) * 0.5 - 0.5 + vec2(min(u_resolution.x, u_resolution.y) * 0.15, 0);
     float radius = min(u_resolution.x, u_resolution.y) * 0.1;
     float len = length(gl_FragCoord.xy - center) / radius;
 
     if (len < 1.0) {
-      return vec4(cos(len * 5.0 * M_PI) * (1.0 - len) * 2.0);
+      o_height = vec4(cos(len * 5.0 * M_PI) * (1.0 - len) * 2.0);
     }
-
-    return vec4(0);
-  }
-
-  vec4 calcAccumulated() {
-    return vec4(0);
-  }
-
-  vec4 calcVelocity() {
-    return vec4(0);
   }
 `)
 

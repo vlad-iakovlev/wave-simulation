@@ -4,27 +4,18 @@ import { useRaf } from '../hooks/useRaf'
 import { DemoProps } from './DemoPage'
 
 const initShader = getShader(`
-  vec4 calcAcceleration() {
-    return DEFAULT_ACCELERATION;
-  }
+  void main () {
+    o_acceleration = DEFAULT_ACCELERATION;
+    o_height = vec4(0);
+    o_accumulated = vec4(0);;
+    o_velocity = vec4(0);
 
-  vec4 calcHeight() {
     vec2 center = vec2(u_resolution) * 0.5 - 0.5;
     float radius = min(u_resolution.x, u_resolution.y) * 0.25;
 
     if (length(gl_FragCoord.xy - center) < radius) {
-      return vec4(1);
+      o_height = vec4(1);
     }
-
-    return vec4(0);
-  }
-
-  vec4 calcAccumulated() {
-    return vec4(0);
-  }
-
-  vec4 calcVelocity() {
-    return vec4(0);
   }
 `)
 

@@ -15,44 +15,17 @@ export const VERTEX_SHADER = `#version 300 es
 `
 
 export const INIT_SHADER = getShader(`
-  vec4 calcAcceleration() {
-    return DEFAULT_ACCELERATION;
-  }
-
-  vec4 calcHeight() {
-    return vec4(0);
-  }
-
-  vec4 calcAccumulated() {
-    return vec4(0);
-  }
-
-  vec4 calcVelocity() {
-    return vec4(0);
+  void main() {
+    o_acceleration = DEFAULT_ACCELERATION;
+    o_height = vec4(0);
+    o_accumulated = vec4(0);
+    o_velocity = vec4(0);
   }
 `)
 
 export const ITERATE_SHADER = getShader(`
-  vec4 getNextHeight(ivec2 coord) {
-    return texelFetch(u_height, coord, 0) + texelFetch(u_velocity, coord, 0);
-  }
-
-  vec4 calcAcceleration() {
-    return texelFetch(u_acceleration, ivec2(gl_FragCoord.xy), 0);
-  }
-
-  vec4 calcHeight() {
-    return getNextHeight(ivec2(gl_FragCoord.xy));
-  }
-
-  vec4 calcAccumulated() {
+  vec4 getForce() {
     ivec2 texelCoord = ivec2(gl_FragCoord.xy);
-    return texelFetch(u_accumulated, texelCoord, 0) + abs(getNextHeight(texelCoord));
-  }
-
-  vec4 calcVelocity() {
-    ivec2 texelCoord = ivec2(gl_FragCoord.xy);
-
     vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_resolution.xy - gl_FragCoord.xy));
     vec4 angles = sides * sides.yzwx * 0.3;
 
@@ -60,24 +33,31 @@ export const ITERATE_SHADER = getShader(`
     sides *= weight;
     angles *= weight;
 
-    vec4 force =
-      angles.x * getNextHeight(texelCoord + ivec2(-1, -1)) +
-      sides.y  * getNextHeight(texelCoord + ivec2( 0, -1)) +
-      angles.y * getNextHeight(texelCoord + ivec2( 1, -1)) +
-      sides.x  * getNextHeight(texelCoord + ivec2(-1,  0)) +
-      -1.0     * getNextHeight(texelCoord                ) +
-      sides.z  * getNextHeight(texelCoord + ivec2( 1,  0)) +
-      angles.w * getNextHeight(texelCoord + ivec2(-1,  1)) +
-      sides.w  * getNextHeight(texelCoord + ivec2( 0,  1)) +
-      angles.z * getNextHeight(texelCoord + ivec2( 1,  1));
+    return
+      angles.x * (texelFetch(u_height, texelCoord + ivec2(-1, -1), 0) + texelFetch(u_velocity, texelCoord + ivec2(-1, -1), 0)) +
+      sides.y  * (texelFetch(u_height, texelCoord + ivec2( 0, -1), 0) + texelFetch(u_velocity, texelCoord + ivec2( 0, -1), 0)) +
+      angles.y * (texelFetch(u_height, texelCoord + ivec2( 1, -1), 0) + texelFetch(u_velocity, texelCoord + ivec2( 1, -1), 0)) +
+      sides.x  * (texelFetch(u_height, texelCoord + ivec2(-1,  0), 0) + texelFetch(u_velocity, texelCoord + ivec2(-1,  0), 0)) +
+      -1.0     * (texelFetch(u_height, texelCoord                , 0) + texelFetch(u_velocity, texelCoord                , 0)) +
+      sides.z  * (texelFetch(u_height, texelCoord + ivec2( 1,  0), 0) + texelFetch(u_velocity, texelCoord + ivec2( 1,  0), 0)) +
+      angles.w * (texelFetch(u_height, texelCoord + ivec2(-1,  1), 0) + texelFetch(u_velocity, texelCoord + ivec2(-1,  1), 0)) +
+      sides.w  * (texelFetch(u_height, texelCoord + ivec2( 0,  1), 0) + texelFetch(u_velocity, texelCoord + ivec2( 0,  1), 0)) +
+      angles.z * (texelFetch(u_height, texelCoord + ivec2( 1,  1), 0) + texelFetch(u_velocity, texelCoord + ivec2( 1,  1), 0));
+  }
 
-    return texelFetch(u_velocity, texelCoord, 0) + force * texelFetch(u_acceleration, texelCoord, 0);
+  void main() {
+    ivec2 texelCoord = ivec2(gl_FragCoord.xy);
+    vec4 nextHeight = texelFetch(u_height, texelCoord, 0) + texelFetch(u_velocity, texelCoord, 0);
+
+    o_acceleration = texelFetch(u_acceleration, texelCoord, 0);
+    o_height = nextHeight;
+    o_accumulated = texelFetch(u_accumulated, texelCoord, 0) + abs(nextHeight);
+    o_velocity = texelFetch(u_velocity, texelCoord, 0) + getForce() * texelFetch(u_acceleration, texelCoord, 0);
   }
 `)
 
 export const DRAW_SHADER = getDrawShader(`
-  vec4 calcColor() {
-    vec4 value = abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0));
-    return vec4(value.rgb, 1);
+  void main() {
+    o_color = vec4(abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0)).rgb, 1);
   }
 `)
