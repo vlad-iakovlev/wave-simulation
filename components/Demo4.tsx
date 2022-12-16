@@ -1,6 +1,6 @@
-import { FC, useCallback, useRef } from 'react'
-import { FieldImage, getShader } from '../classes/FieldImage'
-import { useRaf } from '../hooks/useRaf'
+import { FC } from 'react'
+import { getShader } from '../classes/FieldImage'
+import { DemoComponent } from './DemoComponent'
 import { DemoProps } from './DemoPage'
 
 const initShader = getShader(`
@@ -30,24 +30,13 @@ const initShader = getShader(`
 `)
 
 export const Demo4: FC<DemoProps> = ({ width, height, scale, speed }) => {
-  const root = useRef<HTMLDivElement>(null)
-  const fieldImage = useRef<FieldImage>()
-
-  useRaf(
-    useCallback(() => {
-      if (!fieldImage.current) {
-        fieldImage.current = new FieldImage(width, height, scale, initShader)
-
-        while (root.current?.firstChild) {
-          root.current.removeChild(root.current.firstChild)
-        }
-        root.current?.appendChild(fieldImage.current.canvas)
-      }
-
-      for (let i = 0; i < speed; i++) fieldImage.current.iterate()
-      fieldImage.current.draw()
-    }, [height, speed, scale, width])
+  return (
+    <DemoComponent
+      width={width}
+      height={height}
+      scale={scale}
+      speed={speed}
+      initShader={initShader}
+    />
   )
-
-  return <div ref={root} />
 }
