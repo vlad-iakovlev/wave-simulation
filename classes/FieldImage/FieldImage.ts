@@ -1,3 +1,4 @@
+import { memoize } from '../../utils/memoize'
 import { createProgramFromSources } from '../../utils/webgl'
 import {
   DRAW_SHADER,
@@ -7,45 +8,28 @@ import {
   VERTEX_SHADER,
 } from './constants'
 
+interface FieldImageConstructorProps {
+  root: HTMLElement
+  width: number
+  height: number
+  scale: number
+  initShader?: string
+}
+
 export class FieldImage {
-  private canvasWidth = Math.floor(this.cssWidth * this.scale)
-  private canvasHeight = Math.floor(this.cssHeight * this.scale)
+  private root: HTMLElement
+  private canvas: HTMLCanvasElement
+  private gl: WebGL2RenderingContext
+  private textures: WebGLTexture[][]
+
   private rdPos = 0
 
   private get wrPos() {
     return this.rdPos ? 0 : 1
   }
 
-  readonly canvas = (() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = this.canvasWidth
-    canvas.height = this.canvasHeight
-    canvas.style.width = `${this.cssWidth}px`
-    canvas.style.height = `${this.cssHeight}px`
-    return canvas
-  })()
-
-  private gl = (() => {
-    const gl = this.canvas.getContext('webgl2')
-    if (!gl) throw new Error('Could not get WebGL2 context')
-
-    const ext = gl.getExtension('EXT_color_buffer_float')
-    if (!ext) throw new Error('Could not use EXT_color_buffer_float')
-
-    return gl
-  })()
-
-  private programsCache = new Map<string, WebGLProgram>()
-
-  private createAndUseProgram(shader: string) {
-    const programFromCache = this.programsCache.get(shader)
-    if (programFromCache) {
-      this.gl.useProgram(programFromCache)
-      return programFromCache
-    }
-
+  private getProgram = memoize((shader: string) => {
     const program = createProgramFromSources(this.gl, VERTEX_SHADER, shader)
-    this.programsCache.set(shader, program)
     this.gl.useProgram(program)
 
     const positionLoc = this.gl.getAttribLocation(program, 'a_position')
@@ -61,25 +45,16 @@ export class FieldImage {
 
     this.gl.uniform2f(
       this.gl.getUniformLocation(program, 'u_resolution'),
-      this.canvasWidth,
-      this.canvasHeight
+      this.canvas.width,
+      this.canvas.height
     )
 
     return program
-  }
+  })
 
-  private fbCache = new Map<WebGLTexture, WebGLFramebuffer>()
-
-  private createAndUseTexturesFB(textures: WebGLTexture[]) {
-    const fbFromCache = this.fbCache.get(textures)
-    if (fbFromCache) {
-      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbFromCache)
-      return fbFromCache
-    }
-
+  private getTexturesFB = memoize((textures: WebGLTexture[]) => {
     const fb = this.gl.createFramebuffer()
     if (!fb) throw new Error('Cannot create framebuffer')
-    this.fbCache.set(textures, fb)
 
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb)
     textures.forEach((texture, index) => {
@@ -92,13 +67,13 @@ export class FieldImage {
       )
     })
     this.gl.drawBuffers(
-      TEXTURE_NAMES.map((textureName, index) => {
+      textures.map((texture, index) => {
         return this.gl.COLOR_ATTACHMENT0 + index
       })
     )
 
     return fb
-  }
+  })
 
   private createTexture(index: number) {
     const texture = this.gl.createTexture()
@@ -111,13 +86,14 @@ export class FieldImage {
       this.gl.TEXTURE_2D,
       0,
       this.gl.RGBA32F,
-      this.canvasWidth,
-      this.canvasHeight,
+      this.canvas.width,
+      this.canvas.height,
       0,
       this.gl.RGBA,
       this.gl.FLOAT,
       null
     )
+
     this.gl.texParameteri(
       this.gl.TEXTURE_2D,
       this.gl.TEXTURE_MIN_FILTER,
@@ -132,16 +108,9 @@ export class FieldImage {
     return texture
   }
 
-  private textures = (() => {
-    return [0, 1].map((pos) => {
-      return TEXTURE_NAMES.map((textureName, index) => {
-        return this.createTexture(TEXTURE_NAMES.length * pos + index)
-      })
-    })
-  })()
-
   private runProgram(shader: string, toCanvas = false) {
-    const program = this.createAndUseProgram(shader)
+    const program = this.getProgram(shader)
+    this.gl.useProgram(program)
 
     TEXTURE_NAMES.forEach((textureName, index) => {
       this.gl.uniform1i(
@@ -154,19 +123,57 @@ export class FieldImage {
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
       this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
     } else {
-      this.createAndUseTexturesFB(this.textures[this.wrPos])
+      const fb = this.getTexturesFB(this.textures[this.wrPos])
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb)
       this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
       this.rdPos = this.wrPos
     }
   }
 
-  constructor(
-    private cssWidth: number,
-    private cssHeight: number,
-    private scale: number,
-    initShader = INIT_SHADER
-  ) {
+  private static createCanvas(width: number, height: number, scale: number) {
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.floor(width * scale)
+    canvas.height = Math.floor(height * scale)
+    canvas.style.width = `${width}px`
+    canvas.style.height = `${height}px`
+    return canvas
+  }
+
+  private static getWebGL2Context(canvas: HTMLCanvasElement) {
+    const gl = canvas.getContext('webgl2')
+    if (!gl) throw new Error('Could not get WebGL2 context')
+
+    const ext = gl.getExtension('EXT_color_buffer_float')
+    if (!ext) throw new Error('Could not use EXT_color_buffer_float')
+
+    return gl
+  }
+
+  constructor({
+    root,
+    width,
+    height,
+    scale,
+    initShader = INIT_SHADER,
+  }: FieldImageConstructorProps) {
+    this.root = root
+
+    this.canvas = FieldImage.createCanvas(width, height, scale)
+    this.root.appendChild(this.canvas)
+
+    this.gl = FieldImage.getWebGL2Context(this.canvas)
+
+    this.textures = [0, 1].map((pos) => {
+      return TEXTURE_NAMES.map((textureName, index) => {
+        return this.createTexture(TEXTURE_NAMES.length * pos + index)
+      })
+    })
+
     this.runProgram(initShader)
+  }
+
+  destroy() {
+    this.root.removeChild(this.canvas)
   }
 
   iterate(iterateShader = ITERATE_SHADER) {

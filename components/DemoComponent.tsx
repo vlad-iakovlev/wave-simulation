@@ -1,4 +1,4 @@
-import { FC, useCallback, useRef } from 'react'
+import { FC, useCallback, useEffect, useRef } from 'react'
 import { FieldImage } from '../classes/FieldImage'
 import { useRaf } from '../hooks/useRaf'
 
@@ -27,18 +27,26 @@ export const DemoComponent: FC<DemoComponentProps> = ({
   useRaf(
     useCallback(() => {
       if (!fieldImage.current) {
-        fieldImage.current = new FieldImage(width, height, scale, initShader)
+        if (!root.current) throw new Error('Could not get root ref')
 
-        while (root.current?.firstChild) {
-          root.current.removeChild(root.current.firstChild)
-        }
-        root.current?.appendChild(fieldImage.current.canvas)
+        fieldImage.current = new FieldImage({
+          root: root.current,
+          width,
+          height,
+          scale,
+          initShader,
+        })
       }
 
       for (let i = 0; i < speed; i++) fieldImage.current.iterate(iterateShader)
       fieldImage.current.draw(drawShader)
     }, [drawShader, width, height, scale, initShader, speed, iterateShader])
   )
+
+  useEffect(() => {
+    fieldImage.current?.destroy()
+    fieldImage.current = undefined
+  }, [width, height, scale, initShader])
 
   return <div ref={root} />
 }

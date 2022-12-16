@@ -35,13 +35,7 @@ export const DemoPage: FC<DemoPageProps> = ({ Demo }) => {
   return (
     <div ref={root}>
       {width > 0 && height > 0 && scale > 0 && (
-        <Demo
-          key={`${width}_${height}_${scale}`}
-          width={width}
-          height={height}
-          scale={scale}
-          speed={2}
-        />
+        <Demo width={width} height={height} scale={scale} speed={2} />
       )}
     </div>
   )
