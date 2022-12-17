@@ -11,9 +11,7 @@ const initShader = getShader(`
     o_velocity = vec4(0);
 
     vec2 center = vec2(u_resolution) * 0.5 - 0.5;
-    float radius = max(u_resolution.x, u_resolution.y);
-    vec2 diff = gl_FragCoord.xy - center;
-    float len = length(diff) / radius;
+    float len = length(gl_FragCoord.xy - center) / length(u_resolution);
     o_height = vec4(cos(len * 50.0 * M_PI) * (1.0 - len) * 2.0);
   }
 `)
