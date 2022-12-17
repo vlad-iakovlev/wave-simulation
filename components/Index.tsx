@@ -6,6 +6,7 @@ import { Demo3 } from './Demo3'
 import { Demo4 } from './Demo4'
 import { Demo5 } from './Demo5'
 import { Demo6 } from './Demo6'
+import { Demo7 } from './Demo7'
 
 const pages = [
   { Demo: Demo1, href: '/demo1' },
@@ -14,6 +15,7 @@ const pages = [
   { Demo: Demo4, href: '/demo4' },
   { Demo: Demo5, href: '/demo5' },
   { Demo: Demo6, href: '/demo6' },
+  { Demo: Demo7, href: '/demo7' },
 ]
 
 export const Index: FC = () => {

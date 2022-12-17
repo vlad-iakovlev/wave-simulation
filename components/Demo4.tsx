@@ -14,7 +14,7 @@ const initShader = getShader(`
     float radius = min(u_resolution.x, u_resolution.y) * 0.25;
     vec2 diff = gl_FragCoord.xy - center;
 
-    if (length(gl_FragCoord.xy - center) < radius) {
+    if (length(diff) < radius) {
       o_acceleration = pow(DEFAULT_ACCELERATION, vec4(2)) * pow(1.0 / 1.33, 2.0);
     }
 
