@@ -11,7 +11,7 @@ permissions:
   pages: write
   id-token: write
 
-concurrency: ci
+concurrency: ci-${{ github.ref }}
 
 jobs:
   checks:
