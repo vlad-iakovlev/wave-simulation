@@ -1,7 +1,7 @@
 export const createShader = (
   gl: WebGL2RenderingContext,
   type: number,
-  source: string
+  source: string,
 ) => {
   const shader = gl.createShader(type)
   if (!shader) throw new Error('Could not create shader')
@@ -20,7 +20,7 @@ export const createShader = (
 export const createProgram = (
   gl: WebGL2RenderingContext,
   vertexShader: WebGLShader,
-  fragmentShader: WebGLShader
+  fragmentShader: WebGLShader,
 ) => {
   const program = gl.createProgram()
   if (!program) throw new Error('Could not create program')
@@ -40,7 +40,7 @@ export const createProgram = (
 export const createProgramFromSources = (
   gl: WebGL2RenderingContext,
   vs: string,
-  fs: string
+  fs: string,
 ) => {
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vs)
   const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fs)

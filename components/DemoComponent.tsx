@@ -40,7 +40,7 @@ export const DemoComponent: FC<DemoComponentProps> = ({
 
       for (let i = 0; i < speed; i++) fieldImage.current.iterate(iterateShader)
       fieldImage.current.draw(drawShader)
-    }, [drawShader, width, height, scale, initShader, speed, iterateShader])
+    }, [drawShader, width, height, scale, initShader, speed, iterateShader]),
   )
 
   useEffect(() => {

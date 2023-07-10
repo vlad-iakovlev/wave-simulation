@@ -16,7 +16,7 @@ export const useFullscreenOnSpace = (ref: RefObject<HTMLElement>) => {
         toggle()
       }
     },
-    [toggle]
+    [toggle],
   )
 
   useEffect(() => {
