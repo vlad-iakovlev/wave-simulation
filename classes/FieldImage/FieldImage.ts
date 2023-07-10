@@ -38,7 +38,7 @@ export class FieldImage {
     this.gl.bufferData(
       this.gl.ARRAY_BUFFER,
       new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-      this.gl.STATIC_DRAW
+      this.gl.STATIC_DRAW,
     )
     this.gl.enableVertexAttribArray(positionLoc)
     this.gl.vertexAttribPointer(positionLoc, 2, this.gl.FLOAT, false, 0, 0)
@@ -46,7 +46,7 @@ export class FieldImage {
     this.gl.uniform2f(
       this.gl.getUniformLocation(program, 'u_resolution'),
       this.canvas.width,
-      this.canvas.height
+      this.canvas.height,
     )
 
     return program
@@ -63,13 +63,13 @@ export class FieldImage {
         this.gl.COLOR_ATTACHMENT0 + index,
         this.gl.TEXTURE_2D,
         texture,
-        0
+        0,
       )
     })
     this.gl.drawBuffers(
       textures.map((texture, index) => {
         return this.gl.COLOR_ATTACHMENT0 + index
-      })
+      }),
     )
 
     return fb
@@ -91,18 +91,18 @@ export class FieldImage {
       0,
       this.gl.RGBA,
       this.gl.FLOAT,
-      null
+      null,
     )
 
     this.gl.texParameteri(
       this.gl.TEXTURE_2D,
       this.gl.TEXTURE_MIN_FILTER,
-      this.gl.NEAREST
+      this.gl.NEAREST,
     )
     this.gl.texParameteri(
       this.gl.TEXTURE_2D,
       this.gl.TEXTURE_MAG_FILTER,
-      this.gl.NEAREST
+      this.gl.NEAREST,
     )
 
     return texture
@@ -115,7 +115,7 @@ export class FieldImage {
     TEXTURE_NAMES.forEach((textureName, index) => {
       this.gl.uniform1i(
         this.gl.getUniformLocation(program, `u_${textureName}`),
-        TEXTURE_NAMES.length * this.rdPos + index
+        TEXTURE_NAMES.length * this.rdPos + index,
       )
     })
 
