@@ -24,7 +24,7 @@
     "@typescript-eslint/eslint-plugin": "^6.7.2",
     "autoprefixer": "^10.4.15",
     "eslint": "^8.49.0",
-    "eslint-config-next": "^13.4.19",
+    "eslint-config-next": "^13.5.2",
     "eslint-config-prettier": "^9.0.0",
     "husky": "^8.0.3",
     "lint-staged": "^14.0.1",
