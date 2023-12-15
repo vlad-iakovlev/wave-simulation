@@ -1,21 +1,17 @@
-import 'inter-ui/inter.css'
+import type { AppProps } from 'next/app.js'
+import { NextHead } from '../components/next/Head.js'
 import '../styles/globals.css'
 
-import type { AppProps } from 'next/app'
-import Head from 'next/head'
-
-function MyApp({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
-      <Head>
+      <NextHead>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, viewport-fit=cover"
         />
-      </Head>
+      </NextHead>
       <Component {...pageProps} />
     </>
   )
 }
-
-export default MyApp

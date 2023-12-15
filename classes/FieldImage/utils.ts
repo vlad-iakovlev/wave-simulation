@@ -1,4 +1,4 @@
-import { TEXTURE_NAMES } from './constants'
+import { TEXTURE_NAMES } from './constants.js'
 
 export const getShader = (code: string) => {
   return `#version 300 es

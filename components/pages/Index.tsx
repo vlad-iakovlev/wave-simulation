@@ -1,12 +1,11 @@
-import Link from 'next/link'
-import { FC } from 'react'
-import { Demo1 } from './Demo1'
-import { Demo2 } from './Demo2'
-import { Demo3 } from './Demo3'
-import { Demo4 } from './Demo4'
-import { Demo5 } from './Demo5'
-import { Demo6 } from './Demo6'
-import { Demo7 } from './Demo7'
+import { NextLink } from '../next/Link.js'
+import { Demo1 } from './Demo1.js'
+import { Demo2 } from './Demo2.js'
+import { Demo3 } from './Demo3.js'
+import { Demo4 } from './Demo4.js'
+import { Demo5 } from './Demo5.js'
+import { Demo6 } from './Demo6.js'
+import { Demo7 } from './Demo7.js'
 
 const pages = [
   { Demo: Demo1, href: '/demo1' },
@@ -18,7 +17,7 @@ const pages = [
   { Demo: Demo7, href: '/demo7' },
 ]
 
-export const Index: FC = () => {
+export const Index: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-full py-8">
       <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-center">
@@ -40,9 +39,9 @@ export const Index: FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-center gap-4">
         {pages.map((page) => (
-          <Link key={page.href} href={page.href}>
+          <NextLink key={page.href} href={page.href}>
             <page.Demo width={300} height={200} scale={2} speed={1} />
-          </Link>
+          </NextLink>
         ))}
       </div>
     </div>

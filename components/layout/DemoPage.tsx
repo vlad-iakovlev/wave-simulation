@@ -1,5 +1,5 @@
-import { FC, useCallback, useEffect, useRef, useState } from 'react'
-import { useFullscreenOnSpace } from '../hooks/useFullscreenOnSpace'
+import React from 'react'
+import { useFullscreenOnSpace } from '../../hooks/useFullscreenOnSpace.js'
 
 export interface DemoProps {
   width: number
@@ -9,22 +9,22 @@ export interface DemoProps {
 }
 
 export interface DemoPageProps {
-  Demo: FC<DemoProps>
+  Demo: React.FC<DemoProps>
 }
 
-export const DemoPage: FC<DemoPageProps> = ({ Demo }) => {
-  const root = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(0)
-  const [height, setHeight] = useState(0)
-  const [scale, setScale] = useState(0)
+export const DemoPage: React.FC<DemoPageProps> = ({ Demo }) => {
+  const root = React.useRef<HTMLDivElement>(null)
+  const [width, setWidth] = React.useState(0)
+  const [height, setHeight] = React.useState(0)
+  const [scale, setScale] = React.useState(0)
 
-  const setDimensions = useCallback(() => {
+  const setDimensions = React.useCallback(() => {
     setWidth(window.innerWidth)
     setHeight(window.innerHeight)
     setScale(Math.min(2, window.devicePixelRatio))
   }, [])
 
-  useEffect(() => {
+  React.useEffect(() => {
     setDimensions()
     window.addEventListener('resize', setDimensions)
     return () => window.removeEventListener('resize', setDimensions)

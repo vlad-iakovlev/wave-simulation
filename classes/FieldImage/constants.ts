@@ -1,4 +1,4 @@
-import { getDrawShader, getShader } from './utils'
+import { getDrawShader, getShader } from './utils.js'
 
 export const TEXTURE_NAMES = [
   'acceleration',

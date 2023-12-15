@@ -1,7 +1,6 @@
-import { FC } from 'react'
-import { getShader } from '../classes/FieldImage'
-import { DemoComponent } from './DemoComponent'
-import { DemoProps } from './DemoPage'
+import { getShader } from '../../classes/FieldImage/index.js'
+import { DemoComponent } from '../layout/DemoComponent.js'
+import { DemoProps } from '../layout/DemoPage.js'
 
 const initShader = getShader(`
   void main () {
@@ -31,7 +30,7 @@ const initShader = getShader(`
   }
 `)
 
-export const Demo3: FC<DemoProps> = ({ width, height, scale, speed }) => {
+export const Demo3: React.FC<DemoProps> = ({ width, height, scale, speed }) => {
   return (
     <DemoComponent
       width={width}

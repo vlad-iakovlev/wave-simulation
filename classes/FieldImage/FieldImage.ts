@@ -1,12 +1,12 @@
-import { memoize } from '../../utils/memoize'
-import { createProgramFromSources } from '../../utils/webgl'
+import { memoize } from '../../utils/memoize.js'
+import { createProgramFromSources } from '../../utils/webgl.js'
 import {
   DRAW_SHADER,
   INIT_SHADER,
   ITERATE_SHADER,
   TEXTURE_NAMES,
   VERTEX_SHADER,
-} from './constants'
+} from './constants.js'
 
 interface FieldImageConstructorProps {
   root: HTMLElement

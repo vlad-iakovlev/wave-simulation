@@ -1,12 +1,12 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
-import { Index } from '../components/Index'
+import { NextHead } from '../components/next/Head.js'
+import { Index } from '../components/pages/Index.js'
 
 const Home: NextPage = () => (
   <>
-    <Head>
-      <title>Wave simulation</title>
-    </Head>
+    <NextHead>
+      <title>Wave Simulation</title>
+    </NextHead>
 
     <Index />
   </>

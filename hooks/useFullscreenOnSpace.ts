@@ -1,15 +1,15 @@
-import { RefObject, useCallback, useEffect } from 'react'
+import React from 'react'
 
-export const useFullscreenOnSpace = (ref: RefObject<HTMLElement>) => {
-  const toggle = useCallback(() => {
+export const useFullscreenOnSpace = (ref: React.RefObject<HTMLElement>) => {
+  const toggle = React.useCallback(() => {
     if (document.fullscreenElement) {
-      document.exitFullscreen()
+      void document.exitFullscreen()
     } else {
-      ref.current?.requestFullscreen()
+      void ref.current?.requestFullscreen()
     }
   }, [ref])
 
-  const handleKeydown = useCallback(
+  const handleKeydown = React.useCallback(
     (event: KeyboardEvent) => {
       if (event.key === ' ') {
         event.preventDefault()
@@ -19,7 +19,7 @@ export const useFullscreenOnSpace = (ref: RefObject<HTMLElement>) => {
     [toggle],
   )
 
-  useEffect(() => {
+  React.useEffect(() => {
     document.addEventListener('keydown', handleKeydown)
 
     return () => {

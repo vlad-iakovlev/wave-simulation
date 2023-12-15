@@ -18,8 +18,8 @@ jobs:
     strategy:
       matrix:
         check:
-          - lint
           - compile
+          - lint:ci
           - prettier:ci
     name: ${{ matrix.check }}
     runs-on: ubuntu-latest

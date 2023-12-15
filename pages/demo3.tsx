@@ -1,13 +1,13 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
-import { Demo3 } from '../components/Demo3'
-import { DemoPage } from '../components/DemoPage'
+import { DemoPage } from '../components/layout/DemoPage.js'
+import { NextHead } from '../components/next/Head.js'
+import { Demo3 } from '../components/pages/Demo3.js'
 
 const Home: NextPage = () => (
   <>
-    <Head>
-      <title>Wave simulation – Demo 3</title>
-    </Head>
+    <NextHead>
+      <title>Wave Simulation – Demo 3</title>
+    </NextHead>
 
     <DemoPage Demo={Demo3} />
   </>
