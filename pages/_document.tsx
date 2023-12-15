@@ -12,7 +12,7 @@ export default function Document() {
           href="/icons/favicon.png"
         />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#171717" />
+        <meta name="theme-color" content="#18181b" />
         <meta
           name="description"
           content="Cellular automaton for wave simulation"
