@@ -12,7 +12,7 @@ export default function Document() {
           href="/icons/favicon.png"
         />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#16a34a" />
+        <meta name="theme-color" content="#171717" />
         <meta
           name="description"
           content="Cellular automaton for wave simulation"
@@ -29,7 +29,7 @@ export default function Document() {
           href="/icons/apple-touch-icon.png"
         />
       </Head>
-      <body className="bg-zinc-300">
+      <body className="bg-zinc-900 text-zinc-100">
         <Main />
         <NextScript />
       </body>

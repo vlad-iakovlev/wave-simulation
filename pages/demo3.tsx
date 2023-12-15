@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
+import { Demo3 } from '../components/demo/Demo3.js'
 import { DemoPage } from '../components/layout/DemoPage.js'
 import { NextHead } from '../components/next/Head.js'
-import { Demo3 } from '../components/pages/Demo3.js'
 
 const Home: NextPage = () => (
   <>
