@@ -26,7 +26,7 @@ export const EpilepsyWarning = () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-zinc-900 pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[env(safe-area-inset-top)]">
       {isLoaded && (
-        <div className="flex max-w-2xl flex-col items-center justify-center p-8 text-center">
+        <div className="flex max-h-full max-w-2xl flex-col items-center overflow-y-auto overscroll-none p-8 text-center">
           <h1 className="mb-8 text-2xl font-bold uppercase sm:text-3xl">
             Warning: flashing lights and rapid color changes ahead
           </h1>
