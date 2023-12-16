@@ -25,12 +25,12 @@ const Home: NextPage = () => (
       <title>Wave Simulation</title>
     </NextHead>
 
-    <div className="flex flex-col items-center justify-center min-h-full py-8">
-      <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-center">
+    <div className="flex min-h-full flex-col items-center justify-center py-8">
+      <h1 className="mb-2 text-center text-2xl font-bold sm:text-3xl">
         Cellular automaton for wave simulation
       </h1>
 
-      <p className="mb-8 text-zinc-300 text-center">
+      <p className="mb-8 text-center text-zinc-300">
         (inspired by{' '}
         <a
           className="underline"
@@ -43,7 +43,7 @@ const Home: NextPage = () => (
         )
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-center gap-4">
+      <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {pages.map((page) => (
           <NextLink key={page.href} href={page.href}>
             <page.Demo width={300} height={200} scale={2} speed={1} />
