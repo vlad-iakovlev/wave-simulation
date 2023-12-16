@@ -56,8 +56,9 @@ const iterateShader = getShader(`
 
   vec4 getForce() {
     ivec2 texelCoord = ivec2(gl_FragCoord.xy);
-    vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_resolution.xy - gl_FragCoord.xy));
-    vec4 angles = sides * sides.yzwx * 0.3;
+    vec4 availableSides = step(1.0, vec4(gl_FragCoord.xy, u_resolution.xy - gl_FragCoord.xy));
+    vec4 sides = availableSides * (M_PI * 0.28125 - 0.125);
+    vec4 angles = availableSides * availableSides.yzwx * (M_PI * 0.140625 - 0.03125);
 
     float weight = 1.0 / (dot(sides, vec4(1)) + dot(angles, vec4(1)));
     sides *= weight;

@@ -6,7 +6,7 @@ const initShader = getShader(`
   void main () {
     o_acceleration = DEFAULT_ACCELERATION;
     o_height = vec4(0);
-    o_accumulated = vec4(0);;
+    o_accumulated = vec4(0);
     o_velocity = vec4(0);
 
     vec2 center = vec2(u_resolution) * 0.5 - 0.5;
