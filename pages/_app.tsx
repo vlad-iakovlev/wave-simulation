@@ -1,5 +1,5 @@
 import type { AppProps } from 'next/app.js'
-import { EpilepsyWarning } from '../components/layout/EpilepsyWarning.js'
+import { EpilepsyWarning } from '../components/layout/EpilepsyWarning.jsx'
 import { NextHead } from '../components/next/Head.js'
 import '../styles/globals.css'
 

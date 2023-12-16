@@ -1,6 +1,6 @@
 import { getShader } from '../../classes/FieldImage/index.js'
-import { DemoComponent } from '../layout/DemoComponent.js'
-import { DemoProps } from '../layout/DemoPage.js'
+import { DemoComponent } from '../layout/DemoComponent.jsx'
+import { DemoProps } from '../layout/DemoPage.jsx'
 
 const initShader = getShader(`
   void main () {

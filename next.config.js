@@ -4,7 +4,8 @@
 const nextConfig = {
   experimental: {
     extensionAlias: {
-      '.js': ['.ts', '.tsx', '.js', '.jsx'],
+      '.js': ['.ts', '.js'],
+      '.jsx': ['.tsx', '.jsx'],
     },
   },
   reactStrictMode: true,

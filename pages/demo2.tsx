@@ -1,16 +1,15 @@
-import type { NextPage } from 'next'
-import { Demo2 } from '../components/demo/Demo2.js'
-import { DemoPage } from '../components/layout/DemoPage.js'
+import { Demo2 } from '../components/demo/Demo2.jsx'
+import { DemoPage } from '../components/layout/DemoPage.jsx'
 import { NextHead } from '../components/next/Head.js'
 
-const Home: NextPage = () => (
-  <>
-    <NextHead>
-      <title>Wave Simulation – Demo 2</title>
-    </NextHead>
+export default function Demo2Page() {
+  return (
+    <>
+      <NextHead>
+        <title>Wave Simulation – Demo 2</title>
+      </NextHead>
 
-    <DemoPage Demo={Demo2} />
-  </>
-)
-
-export default Home
+      <DemoPage Demo={Demo2} />
+    </>
+  )
+}
