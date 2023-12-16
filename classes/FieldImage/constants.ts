@@ -60,8 +60,6 @@ export const ITERATE_SHADER = getShader(`
   }
 `)
 
-console.log(ITERATE_SHADER)
-
 export const DRAW_SHADER = getDrawShader(`
   void main() {
     o_color = vec4(abs(texelFetch(u_height, ivec2(gl_FragCoord.xy), 0)).rgb, 1);
