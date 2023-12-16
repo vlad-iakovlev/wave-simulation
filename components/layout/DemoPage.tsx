@@ -1,6 +1,5 @@
 import React from 'react'
 import { useFullscreenOnSpace } from '../../hooks/useFullscreenOnSpace.js'
-import { getSafeAreaInsets } from '../../utils/getSafeAreaInsets.js'
 
 export interface DemoProps {
   width: number
@@ -21,9 +20,8 @@ export const DemoPage: React.FC<DemoPageProps> = ({ Demo }) => {
 
   React.useEffect(() => {
     const setDimensions = () => {
-      const safeAreaInsets = getSafeAreaInsets()
-      setWidth(window.innerWidth + safeAreaInsets.left + safeAreaInsets.right)
-      setHeight(window.innerHeight + safeAreaInsets.top + safeAreaInsets.bottom)
+      setWidth(window.innerWidth)
+      setHeight(window.innerHeight)
       setScale(Math.min(2, window.devicePixelRatio))
     }
 
