@@ -33,7 +33,7 @@ export const DemoPage: React.FC<DemoPageProps> = ({ Demo }) => {
   useFullscreenOnSpace(root)
 
   return (
-    <div ref={root}>
+    <div ref={root} className="touch-none">
       {width > 0 && height > 0 && scale > 0 && (
         <Demo width={width} height={height} scale={scale} speed={2} />
       )}
