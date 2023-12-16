@@ -25,7 +25,7 @@ const Home: NextPage = () => (
       <title>Wave Simulation</title>
     </NextHead>
 
-    <div className="flex min-h-full flex-col items-center justify-center py-8">
+    <div className="flex min-h-screen flex-col items-center justify-center py-8 pb-[calc(env(safe-area-inset-bottom)+2rem)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[calc(env(safe-area-inset-top)+2rem)]">
       <h1 className="mb-2 text-center text-2xl font-bold sm:text-3xl">
         Cellular automaton for wave simulation
       </h1>

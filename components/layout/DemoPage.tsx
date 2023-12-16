@@ -1,5 +1,6 @@
 import React from 'react'
 import { useFullscreenOnSpace } from '../../hooks/useFullscreenOnSpace.js'
+import { getSafeArea } from '../../utils/getSafeArea.js'
 
 export interface DemoProps {
   width: number
@@ -18,17 +19,18 @@ export const DemoPage: React.FC<DemoPageProps> = ({ Demo }) => {
   const [height, setHeight] = React.useState(0)
   const [scale, setScale] = React.useState(0)
 
-  const setDimensions = React.useCallback(() => {
-    setWidth(window.innerWidth)
-    setHeight(window.innerHeight)
-    setScale(Math.min(2, window.devicePixelRatio))
-  }, [])
-
   React.useEffect(() => {
+    const setDimensions = () => {
+      const safeArea = getSafeArea()
+      setWidth(window.innerWidth + safeArea.left + safeArea.right)
+      setHeight(window.innerHeight + safeArea.top + safeArea.bottom)
+      setScale(Math.min(2, window.devicePixelRatio))
+    }
+
     setDimensions()
     window.addEventListener('resize', setDimensions)
     return () => window.removeEventListener('resize', setDimensions)
-  }, [setDimensions])
+  }, [])
 
   useFullscreenOnSpace(root)
 

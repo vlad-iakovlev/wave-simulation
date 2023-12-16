@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-#__next {
-  height: 100%;
+nextjs-portal {
+  user-select: text;
 }

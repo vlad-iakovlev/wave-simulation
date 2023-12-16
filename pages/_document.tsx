@@ -29,7 +29,7 @@ export default function Document() {
           href="/icons/apple-touch-icon.png"
         />
       </Head>
-      <body className="bg-zinc-900 text-zinc-100">
+      <body className="touch-pan-y select-none bg-zinc-900 text-zinc-100 [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none]">
         <Main />
         <NextScript />
       </body>
