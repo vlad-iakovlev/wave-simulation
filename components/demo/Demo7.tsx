@@ -11,7 +11,7 @@ const initShader = getShader(`
 
     vec2 center = vec2(u_resolution) * 0.5 - 0.5;
     float len = length(gl_FragCoord.xy - center) / length(u_resolution);
-    o_height = vec4(cos(len * 50.0 * M_PI) * (1.0 - len) * 2.0);
+    o_height = vec4(cos(len * 50.0 * M_PI));
   }
 `)
 
