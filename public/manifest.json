@@ -5,7 +5,6 @@
   "categories": ["entertainment"],
   "lang": "en",
   "display": "standalone",
-  "orientation": "portrait",
   "scope": "/",
   "start_url": "/",
   "icons": [
