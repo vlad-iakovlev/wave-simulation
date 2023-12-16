@@ -24,15 +24,16 @@ export const INIT_SHADER = getShader(`
 `)
 
 export const ITERATE_SHADER = getShader(`
+  float ANGLES_TO_SIDES_RELATION = (M_PI * 0.28125 - 0.125) * (M_PI * 0.140625 - 0.03125);
+
   vec4 getForce() {
     ivec2 texelCoord = ivec2(gl_FragCoord.xy);
-    vec4 availableSides = step(1.0, vec4(gl_FragCoord.xy, u_resolution.xy - gl_FragCoord.xy));
-    vec4 sides = availableSides * (M_PI * 0.28125 - 0.125);
-    vec4 angles = availableSides * availableSides.yzwx * (M_PI * 0.140625 - 0.03125);
+    vec4 sides = step(1.0, vec4(gl_FragCoord.xy, u_resolution.xy - gl_FragCoord.xy));
+    vec4 angles = sides * sides.yzwx * ANGLES_TO_SIDES_RELATION;
 
-    float weight = 1.0 / (dot(sides, vec4(1)) + dot(angles, vec4(1)));
-    sides *= weight;
-    angles *= weight;
+    float total = 1.0 / (dot(sides, vec4(1)) + dot(angles, vec4(1)));
+    sides *= total;
+    angles *= total;
 
     return
       angles.x * (texelFetch(u_height, texelCoord + ivec2(-1, -1), 0) + texelFetch(u_velocity, texelCoord + ivec2(-1, -1), 0)) +
