@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "husky",
     "dev": "next dev",
     "build": "next build",
     "generate-icons": "ts-node --esm bin/generate-icons.ts",
@@ -11,8 +12,7 @@
     "lint": "next lint",
     "lint:ci": "DEBUG=eslint:cli-engine next lint",
     "prettier": "prettier --write '**/*.(js|ts|tsx|md|json)'",
-    "prettier:ci": "prettier --check '**/*.(js|ts|tsx|md|json)'",
-    "prepare": "husky install"
+    "prettier:ci": "prettier --check '**/*.(js|ts|tsx|md|json)'"
   },
   "dependencies": {
     "default-import": "^1.1.5",
@@ -31,7 +31,7 @@
     "eslint": "^8.56.0",
     "eslint-config-next": "^14.1.0",
     "eslint-config-prettier": "^9.1.0",
-    "husky": "^9.0.6",
+    "husky": "^9.0.7",
     "lint-staged": "^15.2.0",
     "postcss": "^8.4.33",
     "prettier": "^3.2.4",
