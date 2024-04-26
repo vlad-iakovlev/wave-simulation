@@ -1,3 +1,3 @@
 # Wave simulation
 
-https://wave-simulation.vlad-yakovlev.dev/
+https://wave-simulation.vlad-iakovlev.dev/
