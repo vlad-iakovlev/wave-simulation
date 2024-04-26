@@ -60,7 +60,7 @@ jobs:
 
   deploy:
     needs: build
-    if: startsWith(github.repository, 'vlad-yakovlev/') && github.ref == 'refs/heads/main'
+    if: startsWith(github.repository, 'vlad-iakovlev/') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
