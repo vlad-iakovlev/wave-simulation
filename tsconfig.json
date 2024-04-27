@@ -9,6 +9,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noEmit": true,
+    "plugins": [{ "name": "next" }],
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
@@ -16,6 +17,6 @@
     "target": "esnext",
     "types": ["node", "next"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

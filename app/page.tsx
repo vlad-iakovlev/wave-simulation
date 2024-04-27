@@ -1,3 +1,5 @@
+'use client'
+
 import { Demo1 } from '../components/demo/Demo1.jsx'
 import { Demo2 } from '../components/demo/Demo2.jsx'
 import { Demo3 } from '../components/demo/Demo3.jsx'
@@ -5,7 +7,6 @@ import { Demo4 } from '../components/demo/Demo4.jsx'
 import { Demo5 } from '../components/demo/Demo5.jsx'
 import { Demo6 } from '../components/demo/Demo6.jsx'
 import { Demo7 } from '../components/demo/Demo7.jsx'
-import { NextHead } from '../components/next/Head.js'
 import { NextLink } from '../components/next/Link.js'
 
 const pages = [
@@ -21,10 +22,6 @@ const pages = [
 export default function IndexPage() {
   return (
     <>
-      <NextHead>
-        <title>Wave Simulation</title>
-      </NextHead>
-
       <div className="flex min-h-screen flex-col items-center justify-center pb-[calc(env(safe-area-inset-bottom)+2rem)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[calc(env(safe-area-inset-top)+2rem)]">
         <h1 className="mb-2 text-center text-2xl font-bold sm:text-3xl">
           Cellular automaton for wave simulation
