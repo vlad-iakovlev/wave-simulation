@@ -11,6 +11,12 @@ updates:
       - dependency-name: '@types/node'
         update-types:
           - 'version-update:semver-major'
+      - dependency-name: '@types/react'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: '@types/react-dom'
+        update-types:
+          - 'version-update:semver-major'
       - dependency-name: 'default-import'
         update-types:
           - 'version-update:semver-major'
@@ -21,6 +27,12 @@ updates:
         update-types:
           - 'version-update:semver-major'
       - dependency-name: 'next'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'react'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'react-dom'
         update-types:
           - 'version-update:semver-major'
     reviewers:
