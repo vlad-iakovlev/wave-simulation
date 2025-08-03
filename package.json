@@ -2,33 +2,31 @@
   "name": "wave-simulation",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
-    "generate-icons": "ts-node --esm bin/generate-icons.ts",
+    "generate-icons": "ts-node --esm bin/generate-icons.mts",
     "compile": "tsc --noEmit",
     "lint": "next lint",
     "lint:ci": "DEBUG=eslint:cli-engine next lint",
-    "prettier": "prettier --write '**/*.(js|ts|tsx|md|json)'",
-    "prettier:ci": "prettier --check '**/*.(js|ts|tsx|md|json)'"
+    "prettier": "prettier --write '**/*.(js|mjs|ts|mts|tsx|md|json)'",
+    "prettier:ci": "prettier --check '**/*.(js|mjs|ts|mts|tsx|md|json)'"
   },
   "dependencies": {
-    "default-import": "^1.1.7",
-    "next": "^14.2.31",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "next": "^15.4.5",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "^22.17.0",
-    "@types/react": "^18.3.23",
-    "@types/react-dom": "^18.3.7",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "chalk": "^5.4.1",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^15.4.5",
+    "eslint": "^9.32.0",
+    "eslint-config-next": "15.4.5",
     "eslint-config-prettier": "^10.1.8",
     "lefthook": "^1.12.2",
     "postcss": "^8.5.6",
@@ -38,31 +36,5 @@
     "tailwindcss": "^4.1.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
-  },
-  "eslintConfig": {
-    "parserOptions": {
-      "project": "./tsconfig.json"
-    },
-    "extends": [
-      "eslint:recommended",
-      "next/core-web-vitals",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:@typescript-eslint/recommended-requiring-type-checking",
-      "plugin:@typescript-eslint/strict",
-      "prettier"
-    ]
-  },
-  "prettier": {
-    "plugins": [
-      "@trivago/prettier-plugin-sort-imports",
-      "prettier-plugin-tailwindcss"
-    ],
-    "semi": false,
-    "singleQuote": true,
-    "importOrder": [
-      "^\\.\\./",
-      "^\\./"
-    ],
-    "importOrderSortSpecifiers": true
   }
 }

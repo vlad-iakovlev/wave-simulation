@@ -1,5 +1,5 @@
 import { Metadata, Viewport } from 'next'
-import { EpilepsyWarning } from '../components/layout/EpilepsyWarning.jsx'
+import { EpilepsyWarning } from '../components/layout/EpilepsyWarning'
 import '../styles/globals.css'
 
 export const metadata: Metadata = {
@@ -52,7 +52,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body className="touch-pan-y select-none bg-zinc-900 text-zinc-100 [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none]">
+      <body className="touch-pan-y bg-zinc-900 text-zinc-100 select-none [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none]">
         {children}
         <EpilepsyWarning />
       </body>

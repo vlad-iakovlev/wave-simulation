@@ -1,6 +1,8 @@
 import React from 'react'
 
-export const useFullscreenOnSpace = (ref: React.RefObject<HTMLElement>) => {
+export const useFullscreenOnSpace = (
+  ref: React.RefObject<HTMLElement | null>,
+) => {
   React.useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.key === ' ') {

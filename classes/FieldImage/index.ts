@@ -1,2 +1,2 @@
-export * from './FieldImage.js'
-export * from './utils.js'
+export * from './FieldImage'
+export * from './utils'

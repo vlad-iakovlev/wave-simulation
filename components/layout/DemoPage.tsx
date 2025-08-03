@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFullscreenOnSpace } from '../../hooks/useFullscreenOnSpace.js'
+import { useFullscreenOnSpace } from '../../hooks/useFullscreenOnSpace'
 
 export interface DemoProps {
   width: number

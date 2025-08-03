@@ -1,13 +1,13 @@
 'use client'
 
-import { Demo1 } from '../components/demo/Demo1.jsx'
-import { Demo2 } from '../components/demo/Demo2.jsx'
-import { Demo3 } from '../components/demo/Demo3.jsx'
-import { Demo4 } from '../components/demo/Demo4.jsx'
-import { Demo5 } from '../components/demo/Demo5.jsx'
-import { Demo6 } from '../components/demo/Demo6.jsx'
-import { Demo7 } from '../components/demo/Demo7.jsx'
-import { NextLink } from '../components/next/Link.js'
+import Link from 'next/link'
+import { Demo1 } from '../components/demo/Demo1'
+import { Demo2 } from '../components/demo/Demo2'
+import { Demo3 } from '../components/demo/Demo3'
+import { Demo4 } from '../components/demo/Demo4'
+import { Demo5 } from '../components/demo/Demo5'
+import { Demo6 } from '../components/demo/Demo6'
+import { Demo7 } from '../components/demo/Demo7'
 
 const pages = [
   { Demo: Demo1, href: '/demo1' },
@@ -22,7 +22,7 @@ const pages = [
 export default function IndexPage() {
   return (
     <>
-      <div className="flex min-h-screen flex-col items-center justify-center pb-[calc(env(safe-area-inset-bottom)+2rem)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[calc(env(safe-area-inset-top)+2rem)]">
+      <div className="flex min-h-screen flex-col items-center justify-center pt-[calc(env(safe-area-inset-top)+2rem)] pr-[env(safe-area-inset-right)] pb-[calc(env(safe-area-inset-bottom)+2rem)] pl-[env(safe-area-inset-left)]">
         <h1 className="mb-2 text-center text-2xl font-bold sm:text-3xl">
           Cellular automaton for wave simulation
         </h1>
@@ -42,9 +42,9 @@ export default function IndexPage() {
 
         <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {pages.map((page) => (
-            <NextLink key={page.href} href={page.href}>
+            <Link key={page.href} href={page.href}>
               <page.Demo width={300} height={200} scale={2} speed={1} />
-            </NextLink>
+            </Link>
           ))}
         </div>
       </div>

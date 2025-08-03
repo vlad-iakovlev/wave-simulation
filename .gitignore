@@ -1,28 +1,15 @@
-# dependencies
+# Dependencies
 /node_modules
-/.pnp
-.pnp.js
+npm-debug.log*
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
+# Misc
 .DS_Store
 *.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# Next.js
+/.next/
+/out/
 
-# typescript
+# Typescript
 *.tsbuildinfo
 next-env.d.ts

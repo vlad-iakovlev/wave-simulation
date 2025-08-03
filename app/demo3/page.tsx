@@ -1,7 +1,7 @@
 'use client'
 
-import { Demo3 } from '../../components/demo/Demo3.jsx'
-import { DemoPage } from '../../components/layout/DemoPage.jsx'
+import { Demo3 } from '../../components/demo/Demo3'
+import { DemoPage } from '../../components/layout/DemoPage'
 
 export default function Demo3Page() {
   return (

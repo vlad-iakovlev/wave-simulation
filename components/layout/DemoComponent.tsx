@@ -1,6 +1,6 @@
 import React from 'react'
-import { FieldImage } from '../../classes/FieldImage/index.js'
-import { useRaf } from '../../hooks/useRaf.js'
+import { FieldImage } from '../../classes/FieldImage/index'
+import { useRaf } from '../../hooks/useRaf'
 
 export interface DemoComponentProps {
   width: number
@@ -22,7 +22,7 @@ export const DemoComponent: React.FC<DemoComponentProps> = ({
   drawShader,
 }) => {
   const root = React.useRef<HTMLDivElement>(null)
-  const fieldImage = React.useRef<FieldImage>()
+  const fieldImage = React.useRef<FieldImage>(undefined)
 
   useRaf(
     React.useCallback(() => {
