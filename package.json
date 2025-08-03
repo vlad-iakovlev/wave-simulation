@@ -28,7 +28,7 @@
     "autoprefixer": "^10.4.21",
     "chalk": "^5.4.1",
     "eslint": "^8.57.1",
-    "eslint-config-next": "^15.4.4",
+    "eslint-config-next": "^15.4.5",
     "eslint-config-prettier": "^10.1.8",
     "lefthook": "^1.12.2",
     "postcss": "^8.5.6",
