@@ -9,7 +9,23 @@ const eslintConfig = [
     extends: ['next/core-web-vitals', 'next/typescript', 'prettier'],
   }),
   {
-    ignores: ['/node_modules', '/.next/', '/out/', 'next-env.d.ts'],
+    ignores: [
+      'node_modules/',
+      '.next/',
+      'out/',
+      'next-env.d.ts',
+      '.prettierrc.mjs',
+      'eslint.config.mjs',
+      'next.config.js',
+      'postcss.config.js',
+    ],
+  },
+  {
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.json',
+      },
+    },
   },
 ]
 
