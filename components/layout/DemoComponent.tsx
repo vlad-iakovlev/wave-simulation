@@ -1,8 +1,8 @@
-import React from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { FieldImage } from '../../classes/FieldImage/index'
 import { useRaf } from '../../hooks/useRaf'
 
-export interface DemoComponentProps {
+export type DemoComponentProps = {
   width: number
   height: number
   scale: number
@@ -12,7 +12,7 @@ export interface DemoComponentProps {
   drawShader?: string
 }
 
-export const DemoComponent: React.FC<DemoComponentProps> = ({
+export const DemoComponent = ({
   width,
   height,
   scale,
@@ -20,12 +20,12 @@ export const DemoComponent: React.FC<DemoComponentProps> = ({
   initShader,
   iterateShader,
   drawShader,
-}) => {
-  const root = React.useRef<HTMLDivElement>(null)
-  const fieldImage = React.useRef<FieldImage>(undefined)
+}: DemoComponentProps) => {
+  const root = useRef<HTMLDivElement>(null)
+  const fieldImage = useRef<FieldImage>(undefined)
 
   useRaf(
-    React.useCallback(() => {
+    useCallback(() => {
       if (!fieldImage.current) {
         if (!root.current) throw new Error('Could not get root ref')
 
@@ -43,7 +43,7 @@ export const DemoComponent: React.FC<DemoComponentProps> = ({
     }, [drawShader, width, height, scale, initShader, speed, iterateShader]),
   )
 
-  React.useEffect(() => {
+  useEffect(() => {
     fieldImage.current?.destroy()
     fieldImage.current = undefined
   }, [width, height, scale, initShader])

@@ -1,25 +1,25 @@
 'use client'
 
-import React from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const LS_KEY = 'isEpilepsyWarningAccepted'
 
 export const EpilepsyWarning = () => {
-  const [isAccepted, setIsAccepted] = React.useState(false)
+  const [isAccepted, setIsAccepted] = useState(false)
 
-  const accept = React.useCallback(() => {
+  const accept = useCallback(() => {
     localStorage.setItem(LS_KEY, 'true')
     setIsAccepted(true)
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const isAccepted = localStorage.getItem(LS_KEY) === 'true'
     setIsAccepted(isAccepted)
   }, [])
 
-  const [isLoaded, setIsLoaded] = React.useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsLoaded(true)
   }, [])
 

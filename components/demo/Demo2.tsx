@@ -101,16 +101,14 @@ const drawShader = getDrawShader(`
   }
 `)
 
-export const Demo2: React.FC<DemoProps> = ({ width, height, scale, speed }) => {
-  return (
-    <DemoComponent
-      width={width}
-      height={height}
-      scale={scale}
-      speed={speed}
-      initShader={initShader}
-      iterateShader={iterateShader}
-      drawShader={drawShader}
-    />
-  )
-}
+export const Demo2 = ({ width, height, scale, speed }: DemoProps) => (
+  <DemoComponent
+    width={width}
+    height={height}
+    scale={scale}
+    speed={speed}
+    initShader={initShader}
+    iterateShader={iterateShader}
+    drawShader={drawShader}
+  />
+)

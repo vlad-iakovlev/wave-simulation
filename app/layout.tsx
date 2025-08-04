@@ -45,7 +45,7 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-interface RootLayoutProps {
+type RootLayoutProps = {
   children: React.ReactNode
 }
 

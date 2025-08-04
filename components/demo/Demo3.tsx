@@ -30,14 +30,12 @@ const initShader = getShader(`
   }
 `)
 
-export const Demo3: React.FC<DemoProps> = ({ width, height, scale, speed }) => {
-  return (
-    <DemoComponent
-      width={width}
-      height={height}
-      scale={scale}
-      speed={speed}
-      initShader={initShader}
-    />
-  )
-}
+export const Demo3 = ({ width, height, scale, speed }: DemoProps) => (
+  <DemoComponent
+    width={width}
+    height={height}
+    scale={scale}
+    speed={speed}
+    initShader={initShader}
+  />
+)
