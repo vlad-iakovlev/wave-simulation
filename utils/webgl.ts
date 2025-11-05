@@ -1,10 +1,12 @@
+import assert from 'assert'
+
 export const createShader = (
   gl: WebGL2RenderingContext,
   type: number,
   source: string,
 ) => {
   const shader = gl.createShader(type)
-  if (!shader) throw new Error('Could not create shader')
+  assert(shader, 'Could not create shader')
 
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
@@ -23,7 +25,7 @@ export const createProgram = (
   fragmentShader: WebGLShader,
 ) => {
   const program = gl.createProgram()
-  if (!program) throw new Error('Could not create program')
+  assert(program, 'Could not create program')
 
   gl.attachShader(program, vertexShader)
   gl.attachShader(program, fragmentShader)

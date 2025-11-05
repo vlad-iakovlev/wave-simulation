@@ -3,42 +3,48 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
     "build": "next build",
+    "compile": "tsc",
+    "dev": "next dev",
     "generate-icons": "ts-node --esm bin/generate-icons.mts",
-    "compile": "tsc --noEmit",
-    "lint": "next lint",
-    "lint:ci": "DEBUG=eslint:cli-engine next lint",
-    "prettier": "prettier --write '**/*.(js|mjs|ts|mts|tsx|md|json)'",
-    "prettier:ci": "prettier --check '**/*.(js|mjs|ts|mts|tsx|md|json)'"
+    "lint": "eslint .",
+    "lint:ci": "DEBUG=eslint:eslint eslint .",
+    "prettier": "prettier --write '**/*.(js|ts|tsx|md|json)'",
+    "prettier:ci": "prettier --check '**/*.(js|ts|tsx|md|json)'",
+    "start": "next start"
+  },
+  "overrides": {
+    "@eslint/config-helpers": "0.4.1",
+    "@eslint/plugin-kit": "0.4.0"
   },
   "dependencies": {
-    "next": "^15.5.6",
+    "next": "^16.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^16.0.1",
     "@tailwindcss/postcss": "^4.1.16",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/eslint-plugin-jsx-a11y": "^6.10.1",
     "@types/node": "^22.19.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "chalk": "^5.6.2",
     "eslint": "9.38.0",
-    "eslint-config-next": "^15.5.6",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "lefthook": "^2.0.2",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
+    "prettier-plugin-packagejson": "^2.5.19",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "sharp": "^0.34.4",
     "tailwindcss": "^4.1.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3"
-  },
-  "overrides": {
-    "@eslint/config-helpers": "0.4.1",
-    "@eslint/plugin-kit": "0.4.0"
   }
 }

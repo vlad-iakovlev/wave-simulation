@@ -1,30 +1,16 @@
-import { FlatCompat } from '@eslint/eslintrc'
+import eslint from '@eslint/js'
+import nextPlugin from '@next/eslint-plugin-next'
 import prettierConfig from 'eslint-config-prettier'
+import a11yConfig from 'eslint-plugin-jsx-a11y'
+import reactPlugin from 'eslint-plugin-react'
+import reactHooksPlugin from 'eslint-plugin-react-hooks'
+import { defineConfig, globalIgnores } from 'eslint/config'
 import tseslint from 'typescript-eslint'
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-})
-
-const eslintConfig = tseslint.config(
-  {
-    ignores: [
-      '.next/',
-      'out/',
-      'next-env.d.ts',
-      'public/sw.js',
-      'public/sw.js.map',
-      'prettier.config.mjs',
-      'next.config.js',
-      'postcss.config.js',
-    ],
-  },
-  ...compat.config({
-    extends: ['next/core-web-vitals'],
-  }),
+const typescriptConfig = defineConfig(
+  eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
-  prettierConfig,
   {
     languageOptions: {
       parserOptions: {
@@ -45,7 +31,6 @@ const eslintConfig = tseslint.config(
           allowAsThisParameter: true,
         },
       ],
-      '@typescript-eslint/no-unnecessary-condition': 'error',
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
       'arrow-body-style': ['error', 'as-needed'],
@@ -53,4 +38,43 @@ const eslintConfig = tseslint.config(
   },
 )
 
-export default eslintConfig
+const reactConfig = defineConfig(
+  { ...reactPlugin.configs.flat.recommended },
+  reactHooksPlugin.configs.flat.recommended,
+  a11yConfig.flatConfigs.strict,
+  nextPlugin.configs.recommended,
+  {
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+    rules: {
+      'jsx-a11y/alt-text': [
+        'error',
+        {
+          elements: ['img', 'object', 'area', 'input[type="image"]'],
+          img: ['Image'],
+        },
+      ],
+      'jsx-a11y/no-noninteractive-tabindex': 'off',
+      'react/react-in-jsx-scope': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
+)
+
+export default defineConfig(
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+    'prettier.config.mjs',
+    'next.config.mjs',
+    'postcss.config.js',
+  ]),
+  typescriptConfig,
+  reactConfig,
+  prettierConfig,
+)

@@ -1,3 +1,4 @@
+import assert from 'assert'
 import { useCallback, useEffect, useRef } from 'react'
 import { FieldImage } from '../../classes/FieldImage/index'
 import { useRaf } from '../../hooks/useRaf'
@@ -27,7 +28,7 @@ export const DemoComponent = ({
   useRaf(
     useCallback(() => {
       if (!fieldImage.current) {
-        if (!root.current) throw new Error('Could not get root ref')
+        assert(root.current, 'Could not get root ref')
 
         fieldImage.current = new FieldImage({
           root: root.current,

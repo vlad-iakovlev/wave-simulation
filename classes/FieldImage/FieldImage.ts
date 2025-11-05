@@ -1,3 +1,4 @@
+import assert from 'assert'
 import { memoize } from '../../utils/memoize'
 import { createProgramFromSources } from '../../utils/webgl'
 import {
@@ -8,7 +9,7 @@ import {
   VERTEX_SHADER,
 } from './constants'
 
-interface FieldImageConstructorProps {
+type FieldImageConstructorProps = {
   root: HTMLElement
   width: number
   height: number
@@ -54,7 +55,7 @@ export class FieldImage {
 
   private getTexturesFB = memoize((textures: WebGLTexture[]) => {
     const fb = this.gl.createFramebuffer()
-    if (!fb) throw new Error('Cannot create framebuffer')
+    assert(fb, 'Could not create framebuffer')
 
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fb)
     textures.forEach((texture, index) => {
@@ -67,9 +68,7 @@ export class FieldImage {
       )
     })
     this.gl.drawBuffers(
-      textures.map((texture, index) => {
-        return this.gl.COLOR_ATTACHMENT0 + index
-      }),
+      textures.map((texture, index) => this.gl.COLOR_ATTACHMENT0 + index),
     )
 
     return fb
@@ -77,7 +76,7 @@ export class FieldImage {
 
   private createTexture(index: number) {
     const texture = this.gl.createTexture()
-    if (!texture) throw new Error('Could not create texture')
+    assert(texture, 'Could not create texture')
 
     this.gl.activeTexture(this.gl.TEXTURE0 + index)
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
@@ -141,10 +140,10 @@ export class FieldImage {
 
   private static getWebGL2Context(canvas: HTMLCanvasElement) {
     const gl = canvas.getContext('webgl2')
-    if (!gl) throw new Error('Could not get WebGL2 context')
+    assert(gl, 'Could not get WebGL2 context')
 
     const ext = gl.getExtension('EXT_color_buffer_float')
-    if (!ext) throw new Error('Could not use EXT_color_buffer_float')
+    assert(ext, 'Could not use EXT_color_buffer_float')
 
     return gl
   }
@@ -163,11 +162,11 @@ export class FieldImage {
 
     this.gl = FieldImage.getWebGL2Context(this.canvas)
 
-    this.textures = [0, 1].map((pos) => {
-      return TEXTURE_NAMES.map((textureName, index) => {
-        return this.createTexture(TEXTURE_NAMES.length * pos + index)
-      })
-    })
+    this.textures = [0, 1].map((pos) =>
+      TEXTURE_NAMES.map((textureName, index) =>
+        this.createTexture(TEXTURE_NAMES.length * pos + index),
+      ),
+    )
 
     this.runProgram(initShader)
   }
