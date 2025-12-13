@@ -15,19 +15,19 @@
   },
   "dependencies": {
     "next": "^16.0.10",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.17",
+    "@tailwindcss/postcss": "^4.1.18",
     "@trivago/prettier-plugin-sort-imports": "^6.0.0",
-    "@types/node": "^22.19.1",
+    "@types/node": "^22.19.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vlad-iakovlev/eslint-config": "^1.0.0",
     "chalk": "^5.6.2",
-    "eslint": "^9.39.1",
-    "lefthook": "^2.0.8",
+    "eslint": "^9.39.2",
+    "lefthook": "^2.0.11",
     "postcss": "^8.5.6",
     "prettier": "^3.7.4",
     "prettier-plugin-packagejson": "^2.5.20",
