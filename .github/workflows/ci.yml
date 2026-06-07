@@ -34,26 +34,3 @@ jobs:
         run: npm ci
       - name: Run ${{ matrix.check }}
         run: npm run ${{ matrix.check }}
-
-  build:
-    needs: checks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
-        with:
-          static_site_generator: next
-      - name: Install dependencies
-        run: npm ci
-      - name: Build
-        run: npm run build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: ./out
