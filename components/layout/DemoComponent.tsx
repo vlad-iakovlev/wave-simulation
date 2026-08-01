@@ -22,16 +22,16 @@ export const DemoComponent = ({
   iterateShader,
   drawShader,
 }: DemoComponentProps) => {
-  const root = useRef<HTMLDivElement>(null)
-  const fieldImage = useRef<FieldImage>(undefined)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const fieldImageRef = useRef<FieldImage>(undefined)
 
   useRaf(
     useCallback(() => {
-      if (!fieldImage.current) {
-        assert(root.current, 'Could not get root ref')
+      if (!fieldImageRef.current) {
+        assert(rootRef.current, 'Could not get root ref')
 
-        fieldImage.current = new FieldImage({
-          root: root.current,
+        fieldImageRef.current = new FieldImage({
+          root: rootRef.current,
           width,
           height,
           scale,
@@ -39,15 +39,16 @@ export const DemoComponent = ({
         })
       }
 
-      for (let i = 0; i < speed; i++) fieldImage.current.iterate(iterateShader)
-      fieldImage.current.draw(drawShader)
+      for (let i = 0; i < speed; i++)
+        fieldImageRef.current.iterate(iterateShader)
+      fieldImageRef.current.draw(drawShader)
     }, [drawShader, width, height, scale, initShader, speed, iterateShader]),
   )
 
   useEffect(() => {
-    fieldImage.current?.destroy()
-    fieldImage.current = undefined
+    fieldImageRef.current?.destroy()
+    fieldImageRef.current = undefined
   }, [width, height, scale, initShader])
 
-  return <div ref={root} />
+  return <div ref={rootRef} />
 }

@@ -13,7 +13,7 @@ export type DemoPageProps = {
 }
 
 export const DemoPage = ({ Demo }: DemoPageProps) => {
-  const root = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
   const [scale, setScale] = useState(0)
@@ -32,10 +32,10 @@ export const DemoPage = ({ Demo }: DemoPageProps) => {
     }
   }, [])
 
-  useFullscreenOnSpace(root)
+  useFullscreenOnSpace(rootRef)
 
   return (
-    <div ref={root} className="touch-none">
+    <div ref={rootRef} className="touch-none">
       {width > 0 && height > 0 && scale > 0 && (
         <Demo width={width} height={height} scale={scale} speed={2} />
       )}
