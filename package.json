@@ -31,7 +31,7 @@
     "prettier": "^3.9.6",
     "prettier-plugin-packagejson": "^3.0.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4.1.11",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
