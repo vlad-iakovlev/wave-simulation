@@ -28,7 +28,7 @@
     "chalk": "^6.0.0",
     "eslint": "^10.10.0",
     "postcss": "^8.5.28",
-    "prettier": "^3.9.6",
+    "prettier": "^3.9.7",
     "prettier-plugin-packagejson": "^3.0.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "sharp": "^0.35.4",
