@@ -19,7 +19,7 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.3",
+    "@tailwindcss/postcss": "^4.3.4",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
